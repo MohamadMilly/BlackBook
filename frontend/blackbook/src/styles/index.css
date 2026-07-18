@@ -1,0 +1,63 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Google+Sans+Flex:opsz,wght@6..144,1..1000&family=Oswald:wght@200..700&family=Playwrite+AU+TAS:wght@100..400&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
+@import "tailwindcss";
+
+h1,
+h2,
+h3,
+h3,
+h5,
+h6 {
+  font-family: "Oswald", sans-serif;
+  position: relative;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  margin-bottom: 1rem;
+  background-image: linear-gradient(to bottom, #ffffff, #a3a3a3);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@layer utilities {
+  .animate-slideRight {
+    animation: slideRight 0.3s 1;
+    animation-fill-mode: both;
+  }
+
+  .animate-slideDown {
+    animation: slideDown 0.6s 1 forwards;
+  }
+  .animate-popUp {
+    animation: popUp 0.3s 1 forwards;
+  }
+  @keyframes slideRight {
+    from {
+      opacity: 0;
+      transform: translateX(-70%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @keyframes popUp {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

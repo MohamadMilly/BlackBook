@@ -1,14 +1,16 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-screen">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="src/styles/index.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>template</title>
+    <title>BlackBook</title>
   </head>
-  <body>
-    <div id="root"></div>
+  <body
+    class="h-full bg-black text-white grid grid-cols-1 md:grid-cols-[12vw_1fr_12vw]"
+  >
+    <div class="h-full md:col-start-2 md:col-end-3" id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
