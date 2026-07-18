@@ -1,0 +1,15 @@
+{
+  "name": "mono-repo-template",
+  "private": true,
+  "version": "1.0.0",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "workspaces": [
+    "frontend",
+    "backend",
+    "shared-types"
+  ]
+}
