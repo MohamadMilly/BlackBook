@@ -4,12 +4,16 @@ import "dotenv/config";
 import cors from "cors";
 import { HttpError } from "./shared/errors/HttpError.js";
 
+// routers
+import { authRouter } from "./routes/authRouter.js";
+
 const app: Express = express();
 
 app.use(cors());
 
 app.use(express.json());
 
+app.use("/auth", authRouter);
 app.use((req: Request, res: Response, next: NextFunction) => {
   const routeError = new HttpError(404, "Route is not found.");
   next(routeError);
