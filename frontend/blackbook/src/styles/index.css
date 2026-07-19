@@ -18,6 +18,10 @@ h6 {
   color: transparent;
 }
 
+p {
+  text-wrap: balance;
+}
+
 @layer utilities {
   .animate-slideRight {
     animation: slideRight 0.3s 1;

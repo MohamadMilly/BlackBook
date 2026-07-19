@@ -20,7 +20,7 @@ export function NavBar() {
           </RouteLink>
         </li>
         <li>
-          <RouteLink className="flex items-center gap-1" route="/log-in">
+          <RouteLink className="flex items-center gap-1" route="/sign-up">
             <UserPlus size={16} />
             <span>Sign up</span>
           </RouteLink>
@@ -42,7 +42,7 @@ export function NavBar() {
             <li>
               <RouteLink
                 className="flex items-center gap-1 w-full"
-                route="/log-in"
+                route="/sign-up"
               >
                 <UserPlus size={16} />
                 <span>Sign up</span>

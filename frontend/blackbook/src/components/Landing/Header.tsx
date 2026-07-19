@@ -5,7 +5,7 @@ export function LandingHeader() {
   return (
     <header className="relative max-w-4xl mx-auto mt-12 px-8 py-10 md:rounded-2xl bg-linear-155 from-neutral-950 via-black to-blue-950/40 text-center overflow-hidden">
       <h1 className="text-5xl sm:text-6xl">BlackBook</h1>
-      <p className="relative max-w-xl mx-auto text-base sm:text-lg text-neutral-400 font-medium leading-relaxed">
+      <p className="relative max-w-xl mx-auto text-base sm:text-lg text-neutral-400 leading-relaxed">
         The top social media platform to share your ideas and communicate with
         your friends and family.
       </p>
@@ -18,7 +18,7 @@ export function LandingHeader() {
           </RouteLink>
         </li>
         <li>
-          <RouteLink className="flex items-center gap-1" route="/log-in">
+          <RouteLink className="flex items-center gap-1" route="/sign-up">
             <UserPlus size={16} />
             <span>Sign up</span>
           </RouteLink>

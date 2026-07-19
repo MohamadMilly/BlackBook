@@ -1,6 +1,6 @@
 export function LandingFooter() {
   return (
-    <footer className="flex flex-col mt-8 px-4 py-6 min-h-50 bg-black border-t border-neutral-700/80">
+    <footer className="flex flex-col mt-12 px-4 py-6 min-h-50 bg-black border-t border-neutral-700/80">
       <div className="w-15 h-15">
         <img
           className="object-cover"
