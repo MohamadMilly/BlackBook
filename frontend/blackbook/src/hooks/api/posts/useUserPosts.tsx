@@ -18,7 +18,8 @@ export function useUserPosts(userId: number) {
   const { user: currentUser } = useAuth();
   const { data, isLoading, error } = useQuery({
     queryFn: () => getUserPosts(userId, currentUser?.id),
-    queryKey: ["posts", "users", userId],
+    queryKey: ["posts", userId],
+    staleTime: 1000 * 60 * 5,
   });
   const posts = data?.posts ?? [];
   return { posts, isLoading, error };

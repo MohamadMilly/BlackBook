@@ -18,6 +18,7 @@ export const getUserPostsGet = async (req, res, next) => {
         const posts = await getUserPosts(JSON.parse(userId), {
             include: {
                 user: true,
+                likes: true,
             },
         });
         res.json({ posts });

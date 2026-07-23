@@ -4,6 +4,7 @@ import { verifyToken } from "../middlewares/auth/verifyToken.js";
 import * as postsController from "../controllers/postsController.js";
 import { validateCreatePost } from "../middlewares/posts/validation/validateCreatePost.js";
 import { handleValidationErrors } from "../middlewares/shared/handleValidationErrors.js";
+import * as likesController from "../controllers/likesController.js";
 
 export const postsRouter = express.Router();
 
@@ -17,3 +18,4 @@ postsRouter.post(
   handleValidationErrors,
   postsController.create,
 );
+postsRouter.post("/:postId/likes", likesController.toggleLikePost);

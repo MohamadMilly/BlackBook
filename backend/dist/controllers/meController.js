@@ -24,6 +24,7 @@ export const getCurrentUserPosts = async (req, res, next) => {
         const posts = await getUserPosts(currentUser?.id, {
             include: {
                 user: true,
+                likes: true,
             },
         });
         res.json({ posts: posts });

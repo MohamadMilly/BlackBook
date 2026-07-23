@@ -68,7 +68,8 @@ export const JsonNull = runtime.JsonNull;
 export const AnyNull = runtime.AnyNull;
 export const ModelName = {
     User: 'User',
-    Post: 'Post'
+    Post: 'Post',
+    Like: 'Like'
 };
 /**
  * Enums
@@ -83,15 +84,21 @@ export const UserScalarFieldEnum = {
     id: 'id',
     firstname: 'firstname',
     lastname: 'lastname',
-    username: 'username',
+    createdAt: 'createdAt',
     password: 'password',
-    createdAt: 'createdAt'
+    username: 'username'
 };
 export const PostScalarFieldEnum = {
     id: 'id',
     title: 'title',
     content: 'content',
     images: 'images',
+    userId: 'userId',
+    createdAt: 'createdAt'
+};
+export const LikeScalarFieldEnum = {
+    id: 'id',
+    postId: 'postId',
     userId: 'userId',
     createdAt: 'createdAt'
 };

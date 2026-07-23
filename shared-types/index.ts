@@ -9,12 +9,22 @@ export type User = {
 
 export type Post = {
   id: number;
-  title: string | null;
-  content: string | null;
+  title?: string | null;
+  content: string;
   images: string[];
   user?: Omit<User, "password">;
   userId: number;
   createdAt: Date;
+  likes: Like[];
+};
+
+export type Like = {
+  id: number;
+  postId: number;
+  userId: number;
+  createdAt: Date;
+  user?: Omit<User, "password">;
+  post?: Post;
 };
 
 export type LoginRequestBody = {
@@ -54,4 +64,9 @@ export type ResponseError = {
 };
 
 export interface CreatePostRequestBody
-  extends Omit<Post, "id" | "user" | "createdAt" | "userId"> {}
+  extends Omit<Post, "id" | "user" | "createdAt" | "userId" | "likes"> {}
+
+export type ToggleLikeResponseBody = {
+  operation: "create" | "delete";
+  like: Like | null;
+};

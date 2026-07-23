@@ -38,6 +38,7 @@ export const getCurrentUserPosts = async (
       {
         include: {
           user: true,
+          likes: true,
         },
       },
     );

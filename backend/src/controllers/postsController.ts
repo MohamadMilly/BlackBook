@@ -3,6 +3,7 @@ import { AuthenticatedRequest } from "../types/index.js";
 import { createPost, getPosts } from "../services/postsService.js";
 import { CreatePostRequestBody, Post } from "@app/types";
 import { matchedData } from "express-validator";
+
 export const getPostsGet = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -11,7 +12,7 @@ export const getPostsGet = async (
   const currentUser = req.currentUser; // for giving the posts of followings
   try {
     const posts = await getPosts({
-      include: { user: true },
+      include: { user: true, likes: true },
       orderBy: {
         createdAt: "desc",
       },
@@ -44,6 +45,7 @@ export const create = async (
               createdAt: true,
             },
           },
+          likes: true,
         },
       },
     );

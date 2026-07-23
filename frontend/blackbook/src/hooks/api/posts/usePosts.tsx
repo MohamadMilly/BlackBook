@@ -12,6 +12,7 @@ export function usePosts() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["posts"],
     queryFn: getPosts,
+    staleTime: 1000 * 60 * 5,
   });
   const posts = data?.posts ?? [];
 
