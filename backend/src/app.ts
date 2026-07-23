@@ -6,14 +6,21 @@ import { HttpError } from "./shared/errors/HttpError.js";
 
 // routers
 import { authRouter } from "./routes/authRouter.js";
+import { usersRouter } from "./routes/usersRouter.js";
+import { postsRouter } from "./routes/postsRouter.js";
+import { meRouter } from "./routes/meRouter.js";
 
 const app: Express = express();
-
+ 
 app.use(cors());
 
 app.use(express.json());
 
 app.use("/auth", authRouter);
+app.use("/users", usersRouter);
+app.use("/posts", postsRouter);
+app.use("/me", meRouter);
+
 app.use((req: Request, res: Response, next: NextFunction) => {
   const routeError = new HttpError(404, "Route is not found.");
   next(routeError);
@@ -33,6 +40,7 @@ app.use(
     if (!message) {
       message = "Unexpected server error has occured";
     }
+
     res.status(status).json({
       message: message,
       ...(process.env.NODE_ENV === "development" ? { stack: err.stack } : {}),

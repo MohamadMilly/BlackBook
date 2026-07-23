@@ -4,10 +4,16 @@ import cors from "cors";
 import { HttpError } from "./shared/errors/HttpError.js";
 // routers
 import { authRouter } from "./routes/authRouter.js";
+import { usersRouter } from "./routes/usersRouter.js";
+import { postsRouter } from "./routes/postsRouter.js";
+import { meRouter } from "./routes/meRouter.js";
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/auth", authRouter);
+app.use("/users", usersRouter);
+app.use("/posts", postsRouter);
+app.use("/me", meRouter);
 app.use((req, res, next) => {
     const routeError = new HttpError(404, "Route is not found.");
     next(routeError);

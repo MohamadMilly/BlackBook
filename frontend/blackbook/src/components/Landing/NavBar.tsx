@@ -1,6 +1,6 @@
 import { LogIn, Menu, UserPlus } from "lucide-react";
-import { RouteLink } from "./ui/RouteLink";
-import { SideDrawer } from "./ui/SideDrawer";
+import { RouteLink } from "../shared/ui/RouteLink";
+import { SideDrawer } from "../shared/ui/SideDrawer";
 
 export function NavBar() {
   return (

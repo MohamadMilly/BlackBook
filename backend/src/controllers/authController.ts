@@ -1,4 +1,8 @@
-import { LoginRequestBody, SignUpRequestBody } from "@app/types";
+import {
+  LoginRequestBody,
+  SignUpRequestBody,
+  UserJwtPayload,
+} from "@app/types";
 import { NextFunction, Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import bcrypt from "bcryptjs";
@@ -6,6 +10,7 @@ import { HttpError } from "../shared/errors/HttpError.js";
 import { sign, verify } from "../shared/utils/auth/jwt.js";
 import { matchedData } from "express-validator";
 import { createUser } from "../services/usersService.js";
+import { JwtPayload } from "jsonwebtoken";
 
 export const loginPost = async (
   req: Request<{}, unknown, LoginRequestBody>,
@@ -13,20 +18,23 @@ export const loginPost = async (
   next: NextFunction,
 ) => {
   const { username, password } = matchedData(req);
+
   try {
     const user = await prisma.user.findUnique({
       where: {
         username: username,
       },
     });
+
     if (!user) {
       throw new HttpError(400, "User with this username does not exist.");
     }
-    const match = await bcrypt.compare(user.password, password);
+    const match = await bcrypt.compare(password, user.password); // password , hash
+
     if (!match) {
       throw new HttpError(400, "Password is incorrect.");
     }
-    const payload = {
+    const payload: UserJwtPayload = {
       id: user.id,
       firstname: user.firstname,
       lastname: user.lastname,
@@ -52,8 +60,9 @@ export const refreshTokenPost = async (
 ) => {
   const { refreshToken: token } = req.body;
   try {
-    const payload = verify(token);
-    const accessToken = sign(payload, { expiresIn: "15min" });
+    const payload = verify<JwtPayload>(token);
+    const { exp, iat, ...clearnPayLoad } = payload;
+    const accessToken = sign(clearnPayLoad, { expiresIn: "15min" });
 
     res.json({
       accessToken: accessToken,

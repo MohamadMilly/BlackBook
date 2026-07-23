@@ -22,7 +22,44 @@ p {
   text-wrap: balance;
 }
 
+.required-label::after {
+  content: "*";
+  color: #ef4444;
+  margin: 0px 4px;
+}
+
+.optional-label::after {
+  content: "(optional)";
+  font-style: italic;
+  color: #4e4e4e;
+  margin: 0px 4px;
+}
+
 @layer utilities {
+  .scrollbar-custom {
+    scrollbar-width: thin;
+    scrollbar-color: #2563eb #262626;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-track {
+    background: #262626;
+    border-radius: 9999px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background: #2563eb;
+    border-radius: 9999px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background: #1d4ed8;
+  }
+
   .animate-slideRight {
     animation: slideRight 0.3s 1;
     animation-fill-mode: both;

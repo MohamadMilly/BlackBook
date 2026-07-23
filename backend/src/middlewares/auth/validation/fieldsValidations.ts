@@ -1,13 +1,13 @@
 import { body } from "express-validator";
 
-export const validateFirstName = body("firstName")
+export const validateFirstName = body("firstname")
   .trim()
   .notEmpty()
   .withMessage("First name is required.")
   .isAlpha("en-US", { ignore: " " })
   .withMessage("First name must only contain letters.");
 
-export const validateLastName = body("lastName")
+export const validateLastName = body("lastname")
   .trim()
   .notEmpty()
   .withMessage("Last name is required.")

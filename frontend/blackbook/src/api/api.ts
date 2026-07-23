@@ -39,20 +39,20 @@ apiClient.interceptors.response.use(
         const response = await axios.post(
           `${import.meta.env.VITE_API_URL}/auth/refresh`,
           { refreshToken },
-          { withCredentials: true },
         );
 
         const { accessToken } = response.data;
 
         // Save the new token
         localStorage.setItem("accessToken", accessToken);
-
+        
         // Update the failed request authorization header and retry it
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         }
         return apiClient(originalRequest);
       } catch (refreshError) {
+        console.log(refreshError);
         // If the refresh token is also expired or invalid, log the user out
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");

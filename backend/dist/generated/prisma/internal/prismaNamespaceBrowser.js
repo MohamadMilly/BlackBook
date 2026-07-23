@@ -64,7 +64,8 @@ export const PostScalarFieldEnum = {
     title: 'title',
     content: 'content',
     images: 'images',
-    userId: 'userId'
+    userId: 'userId',
+    createdAt: 'createdAt'
 };
 export const SortOrder = {
     asc: 'asc',

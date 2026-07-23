@@ -1,6 +1,3 @@
-/* import { AuthenticatedRequest } from "../types/index.js";
-we can add this when we want to determine the currentUser attached to the req object
-*/
 export function extractToken(req, res, next) {
     const bearerHeader = req.headers["authorization"];
     if (typeof bearerHeader !== "undefined") {

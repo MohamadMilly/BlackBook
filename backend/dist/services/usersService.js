@@ -11,3 +11,58 @@ export const createUser = async ({ username, password, firstname, lastname, }) =
     });
     return user;
 };
+export const getUser = async (userId, options = {}) => {
+    const user = await prisma.user.findUnique({
+        where: {
+            id: userId,
+        },
+        ...options,
+    });
+    return user;
+};
+export const getUsers = async (query, cursor, limit, options) => {
+    let queryOptions;
+    if (query) {
+        const [firstname, lastname] = query.split(" ");
+        queryOptions = {
+            where: {
+                OR: [
+                    {
+                        firstname: {
+                            contains: firstname,
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        lastname: {
+                            contains: lastname,
+                            mode: "insensitive",
+                        },
+                    },
+                ],
+                ...(options.where
+                    ? {
+                        ...options.where,
+                    }
+                    : {}),
+            },
+        };
+    }
+    else {
+        queryOptions = {};
+    }
+    const users = await prisma.user.findMany({
+        ...options,
+        ...queryOptions,
+        take: limit,
+        ...(cursor !== undefined
+            ? {
+                skip: 1,
+                cursor: {
+                    id: cursor,
+                },
+            }
+            : {}),
+    });
+    return users;
+};
