@@ -6,7 +6,7 @@ import {
   type SubmitEvent,
 } from "react";
 import { Button } from "../components/shared/ui/Button";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Input } from "../components/shared/ui/Input";
 import { useSignup } from "../hooks/api/auth/useSignup";
 import type { ResponseError } from "@app/types";
@@ -32,7 +32,7 @@ export function SignUpPage() {
     confirmPassword: "",
   });
   const { mutate: signUp, isPending, error } = useSignup();
-
+  const navigate = useNavigate();
   const errors: ResponseError[] = useMemo(
     () => getServerAndValidationErrors(error),
     [error],
@@ -47,7 +47,9 @@ export function SignUpPage() {
   );
   const handleSignupSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    signUp(signUpData);
+    signUp(signUpData, {
+      onSuccess: () => navigate("/log-in"),
+    });
   };
   return (
     <FormWrapper>

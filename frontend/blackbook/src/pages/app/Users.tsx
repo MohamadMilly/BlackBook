@@ -5,13 +5,12 @@ import { useSearchParams } from "react-router";
 import { useUsers } from "../../hooks/api/users/useUsers";
 import { UsersList } from "../../components/app/users/UsersList";
 import { TriggerFetch } from "../../components/shared/utils/TriggerFetch";
+import { useDebounce } from "../../hooks/utils/useDebounce";
 
 export function UsersPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("query");
-  const handleQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchParams({ query: e.target.value }, { replace: true });
-  };
+  const debouncedQuery = useDebounce(query);
   const {
     users,
     isFetchingNextPage,
@@ -19,8 +18,11 @@ export function UsersPage() {
     isLoading,
     fetchNextPage,
     hasNextPage,
-  } = useUsers(query ?? "");
+  } = useUsers(debouncedQuery ?? "");
 
+  const handleQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchParams({ query: e.target.value }, { replace: true });
+  };
   return (
     <SectionWrapper title="Users">
       <form method="POST" className="sticky top-0 bg-black py-2">

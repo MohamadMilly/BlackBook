@@ -6,7 +6,7 @@ import {
   type SubmitEvent,
 } from "react";
 import { Button } from "../components/shared/ui/Button";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Input } from "../components/shared/ui/Input";
 import { useLogin } from "../hooks/api/auth/useLogin";
 import type { ResponseError } from "@app/types";
@@ -26,7 +26,7 @@ export function LoginPage() {
     password: "",
   });
   const { mutate: login, isPending, error } = useLogin();
-   
+  const navigate = useNavigate();
   const errors: ResponseError[] = useMemo(() => {
     return getServerAndValidationErrors(error);
   }, [error]);
@@ -42,7 +42,9 @@ export function LoginPage() {
 
   const handleLoginSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    login(logInData);
+    login(logInData, {
+      onSuccess: () => navigate("/me"),
+    });
   };
 
   return (
