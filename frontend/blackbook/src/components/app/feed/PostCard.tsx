@@ -6,7 +6,8 @@ import { formatDate } from "../../../shared/utils/formatDate";
 import { useLikePost } from "../../../hooks/api/likes/useLikePost";
 import { useCallback } from "react";
 import { useAuth } from "../../../contexts/authContext";
-import { Link, useLocation } from "react-router";
+import { Link } from "react-router";
+
 
 export function PostCard({ post }: { post: Required<Post> }) {
   const { user: currentUser } = useAuth();
@@ -20,13 +21,12 @@ export function PostCard({ post }: { post: Required<Post> }) {
   );
   const { mutate: toggleLike } = useLikePost();
 
-  const handleToggleLike = useCallback(
-    () =>
-      toggleLike({
-        postId: post.id,
-      }),
-    [],
-  );
+  const handleToggleLike = useCallback(() => {
+   
+    toggleLike({
+      postId: post.id,
+    });
+  }, []);
   return (
     <article className="p-4 border border-neutral-800 rounded-xl transition-all duration-200 hover:border-neutral-700/60 shadow-sm bg-neutral-950">
       <div className="flex items-center justify-between border-b border-neutral-800/80 pb-3 mb-4">

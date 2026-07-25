@@ -1,12 +1,18 @@
-import type { User } from "@app/types";
+import type { User, UserFollowDataType } from "@app/types";
 import { apiClient } from "../../../api/api";
 import { useInfiniteQuery } from "@tanstack/react-query";
+
+
+export type UsersPage = {
+  users: User[];
+  nextCursor: number | undefined;
+};
 
 const getUsers = async (
   query: string,
   cursor?: number | undefined,
 ): Promise<{
-  users: Omit<User, "password">[];
+  users: (Omit<User, "password"> & UserFollowDataType)[];
   nextCursor: number | undefined;
 }> => {
   const response = await apiClient.get("/users", {

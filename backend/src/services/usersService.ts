@@ -1,9 +1,9 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma.js";
-import { SignUpRequestBody } from "@app/types";
+import { SignUpRequestBody, User } from "@app/types";
 import {
-  UserFindFirstArgs,
   UserFindManyArgs,
+  UserFindUniqueArgs,
   UserGetPayload,
 } from "../generated/prisma/models.js";
 
@@ -25,18 +25,19 @@ export const createUser = async ({
   return user;
 };
 
-export const getUser = async (
+export const getUser = async <T extends UserFindUniqueArgs>(
   userId: number,
-  options: Record<string, any> = {},
-) => {
+  options: Omit<T, "where"> & { where?: Omit<T["where"], "id"> },
+): Promise<UserGetPayload<T>> => {
   const user = await prisma.user.findUnique({
+    ...options,
     where: {
       id: userId,
+      ...(options?.where ? options.where : {}),
     },
-    ...options,
   });
 
-  return user;
+  return user as UserGetPayload<T>;
 };
 
 export const getUsers = async <T extends UserFindManyArgs>(
@@ -90,4 +91,85 @@ export const getUsers = async <T extends UserFindManyArgs>(
   });
 
   return users as UserGetPayload<T>[];
+};
+
+export const getUserFollowers = async <T extends UserFindUniqueArgs>(
+  userId: number,
+  options: T,
+): Promise<UserGetPayload<T>[]> => {
+  const user = await prisma.user.findUnique({
+    ...options,
+    where: {
+      id: userId,
+    },
+    select: {
+      followers: true,
+    },
+  });
+
+  return user?.followers as UserGetPayload<T>[];
+};
+
+export const getUsersFollowings = async <T extends UserFindUniqueArgs>(
+  userId: number,
+  options: T,
+): Promise<UserGetPayload<T>[]> => {
+  const user = await prisma.user.findUnique({
+    ...options,
+    where: {
+      id: userId,
+    },
+    select: {
+      following: true,
+    },
+  });
+
+  return user?.following as UserGetPayload<T>[];
+};
+
+export const toggleFollowUser = async (
+  followerId: number,
+  followedUserId: number,
+): Promise<"follow" | "unfollow"> => {
+  let operation: "follow" | "unfollow";
+  const existingFollower = await prisma.user.findFirst({
+    where: {
+      id: followerId,
+      following: {
+        some: {
+          id: followedUserId,
+        },
+      },
+    },
+  });
+  if (existingFollower) {
+    await prisma.user.update({
+      where: {
+        id: followedUserId,
+      },
+      data: {
+        followers: {
+          disconnect: {
+            id: followerId,
+          },
+        },
+      },
+    });
+    operation = "unfollow";
+  } else {
+    await prisma.user.update({
+      where: {
+        id: followedUserId,
+      },
+      data: {
+        followers: {
+          connect: {
+            id: followerId,
+          },
+        },
+      },
+    });
+    operation = "follow";
+  }
+  return operation;
 };

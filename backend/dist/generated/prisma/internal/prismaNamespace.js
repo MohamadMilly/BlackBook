@@ -69,7 +69,8 @@ export const AnyNull = runtime.AnyNull;
 export const ModelName = {
     User: 'User',
     Post: 'Post',
-    Like: 'Like'
+    Like: 'Like',
+    FollowRequest: 'FollowRequest'
 };
 /**
  * Enums
@@ -100,6 +101,12 @@ export const LikeScalarFieldEnum = {
     id: 'id',
     postId: 'postId',
     userId: 'userId',
+    createdAt: 'createdAt'
+};
+export const FollowRequestScalarFieldEnum = {
+    id: 'id',
+    senderId: 'senderId',
+    receiverId: 'receiverId',
     createdAt: 'createdAt'
 };
 export const SortOrder = {

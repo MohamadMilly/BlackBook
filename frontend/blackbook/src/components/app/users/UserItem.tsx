@@ -1,19 +1,68 @@
-import type { User } from "@app/types";
+import type { User, UserFollowDataType } from "@app/types";
 import { Avatar } from "../profile/Avatar";
 import { formatDate } from "../../../shared/utils/formatDate";
+import { Button } from "../../shared/ui/Button";
+import { Check, Clock, UserPlus } from "lucide-react";
+import { useSendFollowRequest } from "../../../hooks/api/users/useSendFollowRequest";
+import { useCallback } from "react";
+import { Link } from "react-router";
 
-export function UserItem({ user }: { user: Omit<User, "password"> }) {
+export function UserItem({
+  user,
+}: {
+  user: Omit<User, "password"> & UserFollowDataType;
+}) {
   const fullname = user.firstname + " " + user.lastname;
   const formattedJoinedAtDate = formatDate(user.createdAt);
+  const isCurrentUserFollowing = user.isFollowed;
+  const hasPendingFollowRequestByMe = user.hasPendingFollowRequest;
+  const {
+    mutate: sendFollowRequest,
+    isPending: isSendingRequestPending,
+    error: sendingRequestError,
+  } = useSendFollowRequest();
+
+  const handleSendFollowRequest = useCallback(() => {
+    sendFollowRequest({ receiverId: user.id });
+  }, []);
+
   return (
-    <li className="flex items-start gap-2 bg-neutral-950 rounded-lg p-4">
-      <Avatar className="shrink-0" size={45} />
-      <div className="grow flex flex-col justify-start">
-        <p className="font-bold tracking-tight">{fullname}</p>
-        <span className="text-neutral-400 text-xs">
-          Joined at: {formattedJoinedAtDate}
-        </span>
+    <li className="flex items-center justify-between bg-neutral-950 rounded-lg p-4">
+      <div className="flex items-start gap-2">
+        <Avatar className="shrink-0" size={45} />
+        <div className="grow flex flex-col justify-start">
+          <p className="font-bold tracking-tight">
+            <Link to={`/users/${user.id}/profile`} className="hover:underline">
+              {fullname}
+            </Link>
+          </p>
+          <span className="text-neutral-400 text-xs">
+            Joined at: {formattedJoinedAtDate}
+          </span>
+        </div>
       </div>
+      {isCurrentUserFollowing ? (
+        <p className="flex items-center gap-1">
+          <Check size={18} className="text-blue-600" />
+          <span className="text-sm text-neutral-400">Following</span>
+        </p>
+      ) : hasPendingFollowRequestByMe ? (
+        <p className="flex items-center gap-1 text-neutral-400">
+          <Clock size={18} />
+          <span className="text-sm">Pending</span>
+        </p>
+      ) : (
+        <Button
+          disabled={isSendingRequestPending}
+          onClick={handleSendFollowRequest}
+          className={`flex items-center gap-1 grow-0 p-1.5! ${isSendingRequestPending ? "animate-pulse" : ""}`}
+        >
+          <UserPlus size={18} />
+          <span className="text-sm sr-only sm:not-sr-only">
+            {isSendingRequestPending ? "Sending..." : "Send request"}
+          </span>
+        </Button>
+      )}
     </li>
   );
 }

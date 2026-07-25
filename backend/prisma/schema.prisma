@@ -16,6 +16,20 @@ model User {
   username  String   @unique
   likes     Like[]
   posts     Post[]
+  followers User[]   @relation("followers-following relation")
+  following User[]   @relation("followers-following relation")
+  sentFollowRequests FollowRequest[] @relation("sent follow requests")
+  receivedFollowRequests FollowRequest[] @relation("received follow requests")
+  profile Profile?
+}
+
+model Profile  {
+  id         Int     @id @default(autoincrement())
+  user       User    @relation(fields: [userId],references: [id])
+  userId     Int     @unique
+  avatarUrl String?
+  bannerUrl String?
+  bio       String?
 }
 
 model Post {
@@ -38,4 +52,14 @@ model Like {
   user      User     @relation(fields: [userId], references: [id])
 
   @@unique([userId,postId])
+}
+
+model FollowRequest  {
+id Int @id @default(autoincrement())
+sender User @relation(fields: [senderId],references: [id],"sent follow requests")
+senderId Int
+receiver User @relation(fields: [receiverId],references: [id],"received follow requests")
+receiverId Int
+createdAt DateTime @default(now())
+@@unique([senderId, receiverId])
 }

@@ -3,14 +3,27 @@ import { getUserPosts } from "../services/postsService.js";
 const getCurrentUserGet = async (req, res, next) => {
     const currentUserId = req.currentUser?.id;
     try {
-        const user = await getUser(currentUserId);
+        const user = (await getUser(currentUserId, {
+            include: {
+                _count: {
+                    select: {
+                        followers: true,
+                        following: true,
+                    },
+                },
+            },
+        }));
         if (!user) {
-            res.json({
+            res.status(404).json({
                 message: "User is not found.",
             });
         }
         else {
-            res.json({ user: user });
+            res.json({
+                user: user,
+                followersCount: user._count.followers,
+                followingCount: user._count.following,
+            });
         }
     }
     catch (err) {
@@ -25,6 +38,9 @@ export const getCurrentUserPosts = async (req, res, next) => {
             include: {
                 user: true,
                 likes: true,
+            },
+            orderBy: {
+                createdAt: "desc",
             },
         });
         res.json({ posts: posts });

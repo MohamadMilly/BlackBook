@@ -11,12 +11,13 @@ export const createUser = async ({ username, password, firstname, lastname, }) =
     });
     return user;
 };
-export const getUser = async (userId, options = {}) => {
+export const getUser = async (userId, options) => {
     const user = await prisma.user.findUnique({
+        ...options,
         where: {
             id: userId,
+            ...(options?.where ? options.where : {}),
         },
-        ...options,
     });
     return user;
 };
@@ -65,4 +66,72 @@ export const getUsers = async (query, cursor, limit, options) => {
             : {}),
     });
     return users;
+};
+export const getUserFollowers = async (userId, options) => {
+    const user = await prisma.user.findUnique({
+        ...options,
+        where: {
+            id: userId,
+        },
+        select: {
+            followers: true,
+        },
+    });
+    return user?.followers;
+};
+export const getUsersFollowings = async (userId, options) => {
+    const user = await prisma.user.findUnique({
+        ...options,
+        where: {
+            id: userId,
+        },
+        select: {
+            following: true,
+        },
+    });
+    return user?.following;
+};
+export const toggleFollowUser = async (followerId, followedUserId) => {
+    let operation;
+    const existingFollower = await prisma.user.findFirst({
+        where: {
+            id: followerId,
+            following: {
+                some: {
+                    id: followedUserId,
+                },
+            },
+        },
+    });
+    if (existingFollower) {
+        await prisma.user.update({
+            where: {
+                id: followedUserId,
+            },
+            data: {
+                followers: {
+                    disconnect: {
+                        id: followerId,
+                    },
+                },
+            },
+        });
+        operation = "unfollow";
+    }
+    else {
+        await prisma.user.update({
+            where: {
+                id: followedUserId,
+            },
+            data: {
+                followers: {
+                    connect: {
+                        id: followerId,
+                    },
+                },
+            },
+        });
+        operation = "follow";
+    }
+    return operation;
 };

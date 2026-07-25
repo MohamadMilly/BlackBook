@@ -2,6 +2,7 @@ import express, { type Router } from "express";
 import { extractToken } from "../middlewares/auth/extractToken.js";
 import { verifyToken } from "../middlewares/auth/verifyToken.js";
 import * as meController from "../controllers/meController.js";
+import * as followRequestsController from "../controllers/followRequestsController.js";
 
 export const meRouter: Router = express.Router();
 
@@ -10,3 +11,21 @@ meRouter.use(verifyToken);
 
 meRouter.get("/", meController.getCurrentUserGet);
 meRouter.get("/posts", meController.getCurrentUserPosts);
+meRouter.post("/requests", followRequestsController.createFollowRequestPost);
+meRouter.get("/requests", followRequestsController.getFollowRequestsGet);
+meRouter.post(
+  "/requests/:requestId",
+  followRequestsController.acceptFollowRequestPost,
+);
+meRouter.get(
+  "/requests/count",
+  followRequestsController.getFollowRequestsCountGet,
+);
+meRouter.delete(
+  "/requests/:requestId",
+  followRequestsController.cancelOrRejectFollowRequestDelete,
+);
+meRouter.delete(
+  "/following/:userId",
+  followRequestsController.unFollowUserDelete,
+);

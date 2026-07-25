@@ -1,23 +1,41 @@
 import type { Response, NextFunction } from "express";
 import { AuthenticatedRequest } from "../types/index.js";
 import { getUser } from "../services/usersService.js";
-import { Post, User } from "@app/types";
+import { CurrentUserData, Post, User } from "@app/types";
 import { getUserPosts } from "../services/postsService.js";
 
 const getCurrentUserGet = async (
   req: AuthenticatedRequest,
-  res: Response<{ user: User } | { message: string }>,
+  res: Response<CurrentUserData | { message: string }>,
   next: NextFunction,
 ) => {
   const currentUserId = req.currentUser?.id as number;
   try {
-    const user = await getUser(currentUserId);
+    const user = (await getUser(currentUserId, {
+      include: {
+        _count: {
+          select: {
+            followers: true,
+            following: true,
+          },
+        },
+      },
+    })) as User & {
+      _count: {
+        followers: number;
+        following: number;
+      };
+    };
     if (!user) {
-      res.json({
+      res.status(404).json({
         message: "User is not found.",
       });
     } else {
-      res.json({ user: user });
+      res.json({
+        user: user,
+        followersCount: user._count.followers,
+        followingCount: user._count.following,
+      });
     }
   } catch (err) {
     next(err);
@@ -39,6 +57,9 @@ export const getCurrentUserPosts = async (
         include: {
           user: true,
           likes: true,
+        },
+        orderBy: {
+          createdAt: "desc",
         },
       },
     );

@@ -8,6 +8,7 @@ import { AtSign } from "lucide-react";
 import { PostsList } from "../../components/app/feed/PostsList";
 import { useUserPosts } from "../../hooks/api/posts/useUserPosts";
 import type { Post } from "@app/types";
+import { ProfileIdentity } from "../../components/app/profile/ProfileIdentity";
 
 export function ProfilePage() {
   const { userId } = useParams();
@@ -19,6 +20,11 @@ export function ProfilePage() {
   }
   const definedUserId: number = userId ? userIdNumber : currentUser?.id;
   const {
+    followersCount,
+    followingCount,
+    isFollowed,
+    hasPendingFollowRequest,
+    pendingFollowRequest,
     user,
     isLoading: isLoadingUser,
     error: userFetchError,
@@ -29,6 +35,9 @@ export function ProfilePage() {
     error: postsFetchError,
   } = useUserPosts(definedUserId);
 
+  const fullname = user ? `${user.firstname} ${user.lastname}` : "";
+
+  const isCurrentUserProfile = user ? user.id === currentUser?.id : false;
   return (
     <SectionWrapper title="Profile">
       {userFetchError ? (
@@ -38,10 +47,30 @@ export function ProfilePage() {
       ) : (
         <>
           <ProfileHeader
+            followersCount={followersCount}
+            followingCount={followingCount}
+            isCurrentUserProfile={isCurrentUserProfile}
             isLoading={isLoadingUser}
-            name={user ? `${user.firstname} ${user.lastname}` : ""}
+            name={fullname}
+            isFollowed={isFollowed}
+            hasPendingFollowRequest={hasPendingFollowRequest}
+            userId={definedUserId}
+            pendingFollowRequest={pendingFollowRequest}
           />
-          <dl className="mt-18 p-4">
+          
+          <ProfileIdentity
+            isLoading={isLoadingUser}
+            className="mt-14 flex flex-col items-center gap-1 md:hidden"
+            name={fullname}
+            followersCount={followersCount}
+            followingCount={followingCount}
+            isCurrentUserProfile={isCurrentUserProfile}
+            isFollowed={isFollowed}
+            hasPendingFollowRequest={hasPendingFollowRequest}
+            userId={definedUserId}
+            pendingFollowRequest={pendingFollowRequest}
+          />
+          <dl className="md:mt-18 mt-8 p-2 md:p-4">
             <ProfileField
               isLoading={isLoadingUser}
               fieldKey="Username"
@@ -51,7 +80,7 @@ export function ProfilePage() {
           </dl>
         </>
       )}
-      <h3 className="text-2xl md:text-3xl">Posts</h3>
+      <h3 className="text-2xl md:text-3xl mt-6">Posts</h3>
       <PostsList
         posts={posts as Required<Post>[]}
         isLoading={isLoadingPosts}

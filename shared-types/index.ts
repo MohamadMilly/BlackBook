@@ -5,6 +5,13 @@ export type User = {
   username: string;
   password: string;
   createdAt: Date;
+  followers?: User[];
+  following?: User[];
+};
+
+export type UserFollowDataType = {
+  hasPendingFollowRequest: boolean;
+  isFollowed: boolean;
 };
 
 export type Post = {
@@ -25,6 +32,15 @@ export type Like = {
   createdAt: Date;
   user?: Omit<User, "password">;
   post?: Post;
+};
+
+export type FollowRequest = {
+  id: number;
+  senderId: number;
+  receiverId: number;
+  createdAt: Date;
+  receiver?: Omit<User, "password">;
+  sender?: Omit<User, "password">;
 };
 
 export type LoginRequestBody = {
@@ -70,3 +86,18 @@ export type ToggleLikeResponseBody = {
   operation: "create" | "delete";
   like: Like | null;
 };
+
+export type GetUserResponseBody = {
+  user: Omit<User, "password">;
+  followingCount: number;
+  followersCount: number;
+  pendingFollowRequest: FollowRequest;
+} & UserFollowDataType;
+
+export type CurrentUserData = {
+  user: Omit<User, "password">;
+  followingCount: number;
+  followersCount: number;
+};
+
+export type FollowRequestType = "received" | "sent";

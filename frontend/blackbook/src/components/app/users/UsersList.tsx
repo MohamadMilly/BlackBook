@@ -1,10 +1,10 @@
-import type { User } from "@app/types";
+import type { User, UserFollowDataType } from "@app/types";
 import { UserItem } from "./UserItem";
 
 type UsersList = {
   isLoading: boolean;
   error: Error | null;
-  users: Omit<User, "password">[];
+  users: (Omit<User, "password"> & UserFollowDataType)[];
 };
 
 export function UsersList({ isLoading, error, users }: UsersList) {
