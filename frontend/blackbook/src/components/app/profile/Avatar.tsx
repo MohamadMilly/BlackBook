@@ -1,7 +1,7 @@
 import type { JSX } from "react/jsx-runtime";
 
 type AvatarProps = {
-  avatarUrl: string;
+  avatarUrl: string | null | undefined;
   size: number;
   className?: string;
 };

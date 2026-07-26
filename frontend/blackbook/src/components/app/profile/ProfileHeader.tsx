@@ -4,8 +4,8 @@ import { ProfileIdentity } from "./ProfileIdentity";
 import type { FollowRequest } from "@app/types";
 
 type ProfileHeaderProps = {
-  bannerUrl: string;
-  avatarUrl: string;
+  bannerUrl: string | null | undefined;
+  avatarUrl: string | null | undefined;
   name: string;
   isLoading: boolean;
   followersCount: number;
@@ -39,7 +39,7 @@ export function ProfileHeader({
         backgroundSize: "cover",
       }}
       className="w-full min-h-48 md:min-h-75 bg-neutral-900 flex items-end px-6 rounded"
-    >
+    >  
       <div className="w-full translate-y-1/3 flex gap-4 items-center justify-end md:justify-start md:flex-row flex-col">
         <Avatar
           avatarUrl={avatarUrl}

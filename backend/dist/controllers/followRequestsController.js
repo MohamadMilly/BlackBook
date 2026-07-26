@@ -5,7 +5,11 @@ export const createFollowRequestPost = async (req, res, next) => {
     const { receiverId } = req.body;
     const request = await createFollowRequest(currentUser?.id, receiverId, {
         include: {
-            receiver: true,
+            receiver: {
+                include: {
+                    profile: true,
+                },
+            },
         },
     });
     res.json({ request });

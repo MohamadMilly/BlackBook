@@ -11,3 +11,5 @@ usersRouter.use(verifyToken);
 usersRouter.get("/", usersController.getUsersGet);
 usersRouter.get("/:userId", usersController.getUserGet);
 usersRouter.get("/:userId/posts", usersController.getUserPostsGet);
+usersRouter.get("/:userId/followers", usersController.getUserFollowersGet);
+usersRouter.get("/:userId/followings", usersController.getUserFollowingsGet);

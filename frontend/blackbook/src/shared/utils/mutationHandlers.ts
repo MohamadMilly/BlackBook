@@ -1,6 +1,8 @@
 import type { User, UserFollowDataType } from "@app/types";
 import type { UsersPage } from "../../hooks/api/users/useUsers";
 import type { QueryClient } from "@tanstack/react-query";
+import type { FollowersPage } from "../../hooks/api/users/useUserFollowers";
+import type { FollowingsPage } from "../../hooks/api/users/useUserFollowings";
 
 export function updateUserFollowStatus({
   queryClient,
@@ -17,12 +19,35 @@ export function updateUserFollowStatus({
     if ("pages" in old && Array.isArray(old.pages)) {
       return {
         ...old,
-        pages: old.pages.map((page: UsersPage) => ({
-          ...page,
-          users: page.users.map((user: User) =>
-            user.id === userId ? { ...user, ...data } : user,
-          ),
-        })),
+        pages: old.pages.map(
+          (page: UsersPage | FollowersPage | FollowingsPage) => {
+            if ("users" in page) {
+              return {
+                ...page,
+                users: page["users"].map(
+                  (user: Omit<User, "password"> & UserFollowDataType) =>
+                    user.id === userId ? { ...user, ...data } : user,
+                ),
+              };
+            } else if ("followers" in page) {
+              return {
+                ...page,
+                followers: page["followers"].map(
+                  (user: Omit<User, "password"> & UserFollowDataType) =>
+                    user.id === userId ? { ...user, ...data } : user,
+                ),
+              };
+            } else if ("followings" in page) {
+              return {
+                ...page,
+                followings: page["followings"].map(
+                  (user: Omit<User, "password"> & UserFollowDataType) =>
+                    user.id === userId ? { ...user, ...data } : user,
+                ),
+              };
+            } else return page;
+          },
+        ),
       };
     }
     if ("user" in old && old.user && old.user.id === userId) {

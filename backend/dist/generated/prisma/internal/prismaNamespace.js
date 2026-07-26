@@ -68,6 +68,7 @@ export const JsonNull = runtime.JsonNull;
 export const AnyNull = runtime.AnyNull;
 export const ModelName = {
     User: 'User',
+    Profile: 'Profile',
     Post: 'Post',
     Like: 'Like',
     FollowRequest: 'FollowRequest'
@@ -88,6 +89,13 @@ export const UserScalarFieldEnum = {
     createdAt: 'createdAt',
     password: 'password',
     username: 'username'
+};
+export const ProfileScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    avatarUrl: 'avatarUrl',
+    bannerUrl: 'bannerUrl',
+    bio: 'bio'
 };
 export const PostScalarFieldEnum = {
     id: 'id',

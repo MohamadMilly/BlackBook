@@ -11,6 +11,7 @@ const getCurrentUserGet = async (req, res, next) => {
                         following: true,
                     },
                 },
+                profile: true,
             },
         }));
         if (!user) {

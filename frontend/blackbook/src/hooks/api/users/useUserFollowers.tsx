@@ -2,26 +2,27 @@ import type { User, UserFollowDataType } from "@app/types";
 import { apiClient } from "../../../api/api";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
-export type UsersPage = {
-  users: (Omit<User, "password"> & UserFollowDataType)[];
+export type FollowersPage = {
+  followers: (Omit<User, "password"> & UserFollowDataType)[];
   nextCursor: number | undefined;
 };
 
-const getUsers = async (
+const getUserFollowers = async (
+  userId: number,
   query: string,
-  cursor?: number | undefined,
+  cursor: number | undefined,
 ): Promise<{
-  users: (Omit<User, "password"> & UserFollowDataType)[];
+  followers: (Omit<User, "password"> & UserFollowDataType)[];
   nextCursor: number | undefined;
 }> => {
-  const response = await apiClient.get("/users", {
+  const response = await apiClient.get(`/users/${userId}/followers`, {
     params: { search: query, cursor: cursor },
   });
 
   return response.data;
 };
 
-export function useUsers(query: string) {
+export function useUserFollowers(userId: number, query: string) {
   const {
     data,
     isFetchingNextPage,
@@ -31,21 +32,19 @@ export function useUsers(query: string) {
     hasNextPage,
     error,
   } = useInfiniteQuery({
-    queryKey: ["users", query],
+    queryKey: ["users", "followers", userId, query],
     initialPageParam: undefined,
     queryFn: ({ pageParam }: { pageParam: number | undefined }) =>
-      getUsers(query, pageParam),
-    getNextPageParam: (lastPage) => {
-      return lastPage.nextCursor ?? undefined;
-    },
-    staleTime: 1000 * 60 * 5,
+      getUserFollowers(userId, query, pageParam),
+    getNextPageParam: (lastPage) => lastPage?.nextCursor,
+    staleTime: 1000 * 60 * 2,
   });
+  const followers = data?.pages.flatMap((page) => page.followers) ?? [];
 
-  const users = data ? data.pages.flatMap((page) => page.users) : [];
   return {
-    users,
-    isFetchingNextPage,
+    followers,
     isFetchNextPageError,
+    isFetchingNextPage,
     isLoading,
     fetchNextPage,
     hasNextPage,

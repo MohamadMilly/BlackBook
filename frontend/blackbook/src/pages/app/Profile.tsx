@@ -1,4 +1,4 @@
-import { Navigate, useParams } from "react-router";
+import { Navigate, useNavigate, useParams } from "react-router";
 import { SectionWrapper } from "../../components/app/layout/SectionWrapper";
 import { ProfileHeader } from "../../components/app/profile/ProfileHeader";
 import { useAuth } from "../../contexts/authContext";
@@ -9,16 +9,23 @@ import { PostsList } from "../../components/app/feed/PostsList";
 import { useUserPosts } from "../../hooks/api/posts/useUserPosts";
 import type { Post } from "@app/types";
 import { ProfileIdentity } from "../../components/app/profile/ProfileIdentity";
+import { useEffect } from "react";
 
 export function ProfilePage() {
   const { userId } = useParams();
-  const userIdNumber = userId ? JSON.parse(userId) : null;
+  const numberUserId = userId ? JSON.parse(userId) : null;
   const { user: currentUser } = useAuth();
+  const navigate = useNavigate();
 
-  if (userIdNumber === currentUser?.id) {
-    return <Navigate to={"/me/profile"} />;
-  }
-  const definedUserId: number = userId ? userIdNumber : currentUser?.id;
+  useEffect(() => {
+    if (!currentUser?.id || !numberUserId) return;
+     
+    if (numberUserId === currentUser?.id) {
+      navigate("/me/profile", { replace: true });
+    }
+  }, [numberUserId, currentUser?.id, navigate]);
+
+  const definedUserId: number = userId ? numberUserId : currentUser?.id;
   const {
     followersCount,
     followingCount,
@@ -36,7 +43,7 @@ export function ProfilePage() {
   } = useUserPosts(definedUserId);
 
   const fullname = user ? `${user.firstname} ${user.lastname}` : "";
-
+  const profile = user?.profile;
   const isCurrentUserProfile = user ? user.id === currentUser?.id : false;
   return (
     <SectionWrapper title="Profile">
@@ -47,6 +54,8 @@ export function ProfilePage() {
       ) : (
         <>
           <ProfileHeader
+            avatarUrl={profile?.avatarUrl}
+            bannerUrl={profile?.bannerUrl}
             followersCount={followersCount}
             followingCount={followingCount}
             isCurrentUserProfile={isCurrentUserProfile}
@@ -57,7 +66,7 @@ export function ProfilePage() {
             userId={definedUserId}
             pendingFollowRequest={pendingFollowRequest}
           />
-          
+
           <ProfileIdentity
             isLoading={isLoadingUser}
             className="mt-14 flex flex-col items-center gap-1 md:hidden"

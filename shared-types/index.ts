@@ -7,10 +7,25 @@ export type User = {
   createdAt: Date;
   followers?: User[];
   following?: User[];
+  profile: Profile | null;
+};
+
+export type Profile = {
+  id: number;
+  avatarUrl: string | null;
+  bannerUrl: string | null;
+  bio: string | null;
+};
+
+export type UserWithFollowCounts = {
+  user: Omit<User, "password">;
+  followersCount: number;
+  followingCount: number;
 };
 
 export type UserFollowDataType = {
   hasPendingFollowRequest: boolean;
+  pendingFollowRequest?: FollowRequest;
   isFollowed: boolean;
 };
 
@@ -91,7 +106,6 @@ export type GetUserResponseBody = {
   user: Omit<User, "password">;
   followingCount: number;
   followersCount: number;
-  pendingFollowRequest: FollowRequest;
 } & UserFollowDataType;
 
 export type CurrentUserData = {

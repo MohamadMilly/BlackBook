@@ -39,12 +39,23 @@ export function RequestCard({
   }, [type, request.id, rejectOrCancel]);
 
   const userToDisplay = type === "received" ? request.sender : request.receiver;
+  const userToDisplayProfile = userToDisplay?.profile;
   const fullname = userToDisplay?.firstname + " " + userToDisplay?.lastname;
   const formattedCreatedAt = formatDate(request.createdAt);
   return (
     <li className="flex flex-col overflow-hidden min-h-65 w-55 bg-neutral-950 border border-neutral-800 rounded-xl transition-all duration-200 hover:border-neutral-700/60 shadow-sm">
-      <div className="bg-neutral-900 h-27 flex justify-center items-end">
-        <Avatar size={80} className="translate-y-1/3" />
+      <div
+        style={{
+          backgroundImage: `url(${userToDisplayProfile?.bannerUrl})`,
+          backgroundSize: "cover",
+        }}
+        className="bg-neutral-900 h-27 flex justify-center items-end"
+      >
+        <Avatar
+          avatarUrl={userToDisplayProfile?.avatarUrl}
+          size={80}
+          className="translate-y-1/3"
+        />
       </div>
       <div className="mt-8 flex flex-col items-center px-2">
         <p className="font-medium tracking-tight">{fullname}</p>

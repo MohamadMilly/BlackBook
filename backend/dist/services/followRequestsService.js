@@ -2,6 +2,8 @@ import { prisma } from "../lib/prisma.js";
 import { HttpError } from "../shared/errors/HttpError.js";
 export const createFollowRequest = async (senderId, receiverId, options) => {
     try {
+        if (senderId === receiverId)
+            throw new HttpError(400, "Cannot send a follow request for yourself");
         const followRequest = await prisma.followRequest.create({
             ...options,
             data: {
@@ -30,15 +32,20 @@ export const getFollowRequests = async (userId, type, options) => {
     }
     const whereField = type === "received" ? "receiverId" : "senderId";
     const includeField = type === "received" ? "sender" : "receiver";
-    return prisma.followRequest.findMany({
+    const requests = await prisma.followRequest.findMany({
         ...options,
         where: {
             [whereField]: userId,
         },
         include: {
-            [includeField]: true,
+            [includeField]: {
+                include: {
+                    profile: true,
+                },
+            },
         },
     });
+    return requests;
 };
 export const getFollowRequestsCount = async (userId, type) => {
     const existingUser = await prisma.user.findUnique({

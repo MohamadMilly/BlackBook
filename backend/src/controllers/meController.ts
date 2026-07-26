@@ -19,6 +19,7 @@ const getCurrentUserGet = async (
             following: true,
           },
         },
+        profile: true,
       },
     })) as User & {
       _count: {

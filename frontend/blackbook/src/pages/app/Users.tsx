@@ -93,7 +93,7 @@ export function UsersPage() {
         )}
       </div>
 
-      <form method="POST" className="sticky top-0 bg-black py-2 mt-4">
+      <form method="POST" className="sticky top-0 bg-black py-2 mt-4 z-100">
         <div>
           <label
             className="font-medium tracking-wide mb-1 block"

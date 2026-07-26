@@ -7,6 +7,8 @@ import { FeedPage } from "./pages/app/Feed";
 import { ProfilePage } from "./pages/app/Profile";
 import { UsersPage } from "./pages/app/Users";
 import { NewPostPage } from "./pages/app/NewPost";
+import { FollowersPage } from "./pages/app/Followers";
+import { FollowingsPage } from "./pages/app/Followings";
 
 export const routes = [
   {
@@ -45,10 +47,20 @@ export const routes = [
         element: <NewPostPage />,
         path: "newPost",
       },
+      { element: <FollowersPage />, path: "followers" },
+      { element: <FollowingsPage />, path: "followings" },
     ],
   },
   {
     element: <ProfilePage />,
     path: "/users/:userId/profile",
+  },
+  {
+    element: <FollowersPage />,
+    path: "/users/:userId/followers",
+  },
+  {
+    element: <FollowingsPage />,
+    path: "users/:userId/followings",
   },
 ];

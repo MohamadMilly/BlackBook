@@ -12,7 +12,14 @@ export const getPostsGet = async (
   const currentUser = req.currentUser; // for giving the posts of followings
   try {
     const posts = await getPosts({
-      include: { user: true, likes: true },
+      include: {
+        user: {
+          include: {
+            profile: true,
+          },
+        },
+        likes: true,
+      },
       orderBy: {
         createdAt: "desc",
       },
@@ -43,6 +50,7 @@ export const create = async (
               lastname: true,
               username: true,
               createdAt: true,
+              profile: true,
             },
           },
           likes: true,

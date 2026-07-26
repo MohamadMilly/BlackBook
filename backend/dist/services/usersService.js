@@ -6,7 +6,8 @@ export const createUser = async ({ username, password, firstname, lastname, }) =
             firstname,
             lastname,
             username,
-            password: await bcrypt.hash(password, 15),
+            password: await bcrypt.hash(password, 10),
+            profile: { create: {} },
         },
     });
     return user;
@@ -67,30 +68,41 @@ export const getUsers = async (query, cursor, limit, options) => {
     });
     return users;
 };
-export const getUserFollowers = async (userId, options) => {
-    const user = await prisma.user.findUnique({
-        ...options,
-        where: {
-            id: userId,
-        },
-        select: {
-            followers: true,
-        },
-    });
-    return user?.followers;
+/*
+export const getUserFollowers = async <T extends UserFindUniqueArgs>(
+  userId: number,
+  options: T,
+): Promise<UserGetPayload<T>[]> => {
+  const user = await prisma.user.findUnique({
+    ...options,
+    where: {
+      id: userId,
+    },
+    select: {
+      followers: true,
+    },
+  });
+
+  return user?.followers as UserGetPayload<T>[];
 };
-export const getUsersFollowings = async (userId, options) => {
-    const user = await prisma.user.findUnique({
-        ...options,
-        where: {
-            id: userId,
-        },
-        select: {
-            following: true,
-        },
-    });
-    return user?.following;
+
+export const getUsersFollowings = async <T extends UserFindUniqueArgs>(
+  userId: number,
+  options: T,
+): Promise<UserGetPayload<T>[]> => {
+  const user = await prisma.user.findUnique({
+    ...options,
+    where: {
+      id: userId,
+    },
+    select: {
+      following: true,
+    },
+  });
+
+  return user?.following as UserGetPayload<T>[];
 };
+*/
 export const toggleFollowUser = async (followerId, followedUserId) => {
     let operation;
     const existingFollower = await prisma.user.findFirst({

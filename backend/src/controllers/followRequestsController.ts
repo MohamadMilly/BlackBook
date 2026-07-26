@@ -26,7 +26,11 @@ export const createFollowRequestPost = async (
     receiverId,
     {
       include: {
-        receiver: true,
+        receiver: {
+          include: {
+            profile: true,
+          },
+        },
       },
     },
   );

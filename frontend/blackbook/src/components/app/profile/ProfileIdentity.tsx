@@ -4,7 +4,7 @@ import { useSendFollowRequest } from "../../../hooks/api/users/useSendFollowRequ
 import { useCallback } from "react";
 import type { FollowRequest } from "@app/types";
 import { useRejectOrCancelFollowRequest } from "../../../hooks/api/users/useRejectOrCancelFollowRequest";
-import { useUnFollowUser } from "../../../hooks/api/users/useFollowUser";
+import { useUnFollowUser } from "../../../hooks/api/users/useUnFollowUser";
 
 type ProfileIdentityProps = {
   name: string;
@@ -95,11 +95,11 @@ export function ProfileIdentity({
       </div>
 
       <div className="text-sm text-neutral-400 flex gap-1">
-        <Link className="hover:underline" to={"/me/followers"}>
+        <Link className="hover:underline" to={`/users/${userId}/followers`}>
           Followers: {followersCount}
         </Link>
         <span className="text-neutral-600">•</span>
-        <Link className="hover:underline" to={"/me/following"}>
+        <Link className="hover:underline" to={`/users/${userId}/followings`}>
           Following: {followingCount}
         </Link>
       </div>

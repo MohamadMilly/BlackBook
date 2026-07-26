@@ -63,6 +63,9 @@ export function useAcceptFollowRequest() {
       queryClient.invalidateQueries({ queryKey: queryKey });
       queryClient.invalidateQueries({ queryKey: queryCountKey });
       queryClient.invalidateQueries({ queryKey: ["users", user?.id] }); // current user invalidation to update followers count
+      queryClient.invalidateQueries({
+        queryKey: ["users", "followers", user?.id],
+      });
     },
   });
 }

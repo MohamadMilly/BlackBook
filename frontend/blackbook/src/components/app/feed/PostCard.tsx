@@ -8,10 +8,10 @@ import { useCallback } from "react";
 import { useAuth } from "../../../contexts/authContext";
 import { Link } from "react-router";
 
-
 export function PostCard({ post }: { post: Required<Post> }) {
   const { user: currentUser } = useAuth();
   const { content, title, user, createdAt } = post;
+  const authorProfile = user.profile;
   const authorName = user.firstname + " " + user.lastname;
   const formattedDate = formatDate(createdAt);
   const likes = post.likes;
@@ -22,7 +22,6 @@ export function PostCard({ post }: { post: Required<Post> }) {
   const { mutate: toggleLike } = useLikePost();
 
   const handleToggleLike = useCallback(() => {
-   
     toggleLike({
       postId: post.id,
     });
@@ -31,7 +30,7 @@ export function PostCard({ post }: { post: Required<Post> }) {
     <article className="p-4 border border-neutral-800 rounded-xl transition-all duration-200 hover:border-neutral-700/60 shadow-sm bg-neutral-950">
       <div className="flex items-center justify-between border-b border-neutral-800/80 pb-3 mb-4">
         <div className="flex items-center gap-2.5">
-          <Avatar size={32} />
+          <Avatar avatarUrl={authorProfile?.avatarUrl} size={32} />
           <Link to={`/users/${user.id}/profile`}>
             <span className="text-sm font-semibold text-neutral-200 tracking-wide hover:underline cursor-pointer">
               {authorName}
@@ -40,7 +39,7 @@ export function PostCard({ post }: { post: Required<Post> }) {
         </div>
         <span className="text-xs text-neutral-400">{formattedDate}</span>
       </div>
-
+      
       <div className="space-y-2 mb-5 min-h-40">
         {title && (
           <h3 className="text-lg font-bold text-neutral-100 tracking-tight leading-snug hover:text-blue-500 transition-colors cursor-pointer">

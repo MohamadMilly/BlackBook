@@ -18,7 +18,8 @@ export const createUser = async ({
       firstname,
       lastname,
       username,
-      password: await bcrypt.hash(password, 15),
+      password: await bcrypt.hash(password, 10),
+      profile: { create: {} },
     },
   });
 
@@ -93,6 +94,7 @@ export const getUsers = async <T extends UserFindManyArgs>(
   return users as UserGetPayload<T>[];
 };
 
+/* 
 export const getUserFollowers = async <T extends UserFindUniqueArgs>(
   userId: number,
   options: T,
@@ -126,7 +128,7 @@ export const getUsersFollowings = async <T extends UserFindUniqueArgs>(
 
   return user?.following as UserGetPayload<T>[];
 };
-
+*/
 export const toggleFollowUser = async (
   followerId: number,
   followedUserId: number,
