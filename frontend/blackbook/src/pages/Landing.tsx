@@ -13,7 +13,7 @@ export function LandingPage() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[12vw_1fr_12vw]">
+    <div className="grid grid-cols-1 md:grid-cols-[12vw_1fr_12vw] h-full overflow-y-auto">
       <div className="h-full md:col-start-2 md:col-end-3">
         <NavBar />
         <LandingHeader />
