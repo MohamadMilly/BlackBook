@@ -29,7 +29,7 @@ export function useSendFollowRequest() {
         // notice the plural (queries)
         queryKey: rootQueryKey,
       });
-      
+
       updateUserFollowStatus({
         queryClient,
         userId: receiverId,
@@ -45,7 +45,7 @@ export function useSendFollowRequest() {
         });
       }
     },
-    onSuccess: (data) => {
+    onSuccess: (data, args) => {
       queryClient.setQueryData(
         ["follow_requests", "sent"],
         (old: { requests: FollowRequest[] }) => {

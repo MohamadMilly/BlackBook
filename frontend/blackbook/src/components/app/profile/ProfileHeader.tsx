@@ -13,7 +13,7 @@ type ProfileHeaderProps = {
   followingCount: number;
   isCurrentUserProfile: boolean;
   hasPendingFollowRequest: boolean;
-  pendingFollowRequest: FollowRequest | undefined;
+  pendingFollowRequest: FollowRequest | null;
   isFollowed: boolean;
   userId: number;
 };

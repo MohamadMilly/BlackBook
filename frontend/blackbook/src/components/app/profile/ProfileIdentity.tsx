@@ -17,7 +17,7 @@ type ProfileIdentityProps = {
   hasPendingFollowRequest: boolean;
   isFollowed: boolean;
   userId: number;
-  pendingFollowRequest: FollowRequest | undefined;
+  pendingFollowRequest: FollowRequest | null;
 };
 
 export function ProfileIdentity({
@@ -39,7 +39,7 @@ export function ProfileIdentity({
   } = useSendFollowRequest();
   const {
     mutate: cancelRequest,
-    isPending: isCanceling,
+    isPending: isCancelling,
     error: cancelError,
   } = useRejectOrCancelFollowRequest();
   const {
@@ -47,22 +47,24 @@ export function ProfileIdentity({
     isPending: isUnFollowing,
     error: unFollowError,
   } = useUnFollowUser();
+
   const handleSendRequest = useCallback(() => {
     sendRequest({ receiverId: userId });
   }, [userId]);
 
   const handleCancelRequest = () => {
-    if (pendingFollowRequest) {
-      cancelRequest({
-        type: "sent",
-        requestId: pendingFollowRequest.id,
-        receiverId: userId,
-      });
-    }
+    if (!pendingFollowRequest) return;
+
+    cancelRequest({
+      type: "sent",
+      requestId: pendingFollowRequest.id,
+      receiverId: userId,
+    });
   };
   const handleUnFollow = () => {
     unFollow(userId);
   };
+  const isProccessPending = isSendingPending || isCancelling || isUnFollowing;
   if (isLoading) return <ProfileIdentitySkeleton className={className} />;
   return (
     <div className={`mix-blend-difference ${className}`}>
@@ -71,6 +73,7 @@ export function ProfileIdentity({
         {!isCurrentUserProfile &&
           (isFollowed ? (
             <button
+              disabled={isProccessPending}
               onClick={handleUnFollow}
               className="bg-neutral-700/50 w-fit px-2.5 py-1 rounded-full text-xs font-medium tracking-wide text-white cursor-pointer capitalize transition-colors hover:bg-neutral-700"
             >
@@ -78,6 +81,7 @@ export function ProfileIdentity({
             </button>
           ) : hasPendingFollowRequest ? (
             <button
+              disabled={isProccessPending}
               onClick={handleCancelRequest}
               className="flex items-center gap-1 bg-neutral-700/50 w-fit px-2.5 py-1 rounded-full text-xs font-medium tracking-wide text-white cursor-pointer capitalize transition-colors hover:bg-neutral-700"
             >
@@ -86,6 +90,7 @@ export function ProfileIdentity({
             </button>
           ) : (
             <button
+              disabled={isProccessPending}
               onClick={handleSendRequest}
               className="flex items-center gap-1 bg-neutral-700/50 w-fit px-2.5 py-1 rounded-full text-xs font-medium tracking-wide text-white cursor-pointer capitalize transition-colors hover:bg-neutral-700"
             >

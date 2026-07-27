@@ -17,6 +17,7 @@ export function updateUserFollowStatus({
     if (!old) return old;
 
     if ("pages" in old && Array.isArray(old.pages)) {
+      const { pendingFollowRequest, ...usersListData } = data;
       return {
         ...old,
         pages: old.pages.map(
@@ -26,7 +27,7 @@ export function updateUserFollowStatus({
                 ...page,
                 users: page["users"].map(
                   (user: Omit<User, "password"> & UserFollowDataType) =>
-                    user.id === userId ? { ...user, ...data } : user,
+                    user.id === userId ? { ...user, ...usersListData } : user,
                 ),
               };
             } else if ("followers" in page) {
@@ -34,7 +35,7 @@ export function updateUserFollowStatus({
                 ...page,
                 followers: page["followers"].map(
                   (user: Omit<User, "password"> & UserFollowDataType) =>
-                    user.id === userId ? { ...user, ...data } : user,
+                    user.id === userId ? { ...user, ...usersListData } : user,
                 ),
               };
             } else if ("followings" in page) {
@@ -42,7 +43,7 @@ export function updateUserFollowStatus({
                 ...page,
                 followings: page["followings"].map(
                   (user: Omit<User, "password"> & UserFollowDataType) =>
-                    user.id === userId ? { ...user, ...data } : user,
+                    user.id === userId ? { ...user, ...usersListData } : user,
                 ),
               };
             } else return page;

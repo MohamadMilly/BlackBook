@@ -64,12 +64,13 @@ export function useRejectOrCancelFollowRequest() {
           count: old.count - 1,
         };
       });
-      
-      if (type === "sent" && previousRequestsState) { // reread this !
+
+      if (type === "sent") {
+        // reread this !
         updateUserFollowStatus({
           queryClient,
           userId: receiverId,
-          data: { hasPendingFollowRequest: false },
+          data: { hasPendingFollowRequest: false, pendingFollowRequest: null },
         });
       }
 

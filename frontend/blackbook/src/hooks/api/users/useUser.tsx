@@ -26,7 +26,7 @@ export function useUser(userId: number) {
   const followingCount = data?.followingCount || 0;
   const isFollowed = data?.isFollowed || false;
   const hasPendingFollowRequest = data?.hasPendingFollowRequest || false;
-  const pendingFollowRequest = data?.pendingFollowRequest;
+  const pendingFollowRequest = data?.pendingFollowRequest ?? null;
 
   return {
     user,
