@@ -12,6 +12,22 @@ export const getPostsGet = async (
   const currentUser = req.currentUser; // for giving the posts of followings
   try {
     const posts = await getPosts({
+      where: {
+        OR: [
+          {
+            user: {
+              followers: {
+                some: {
+                  id: currentUser?.id,
+                },
+              },
+            },
+          },
+          {
+            userId: currentUser?.id,
+          },
+        ],
+      },
       include: {
         user: {
           include: {

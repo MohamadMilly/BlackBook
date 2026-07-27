@@ -49,24 +49,16 @@ export const getUsers = async <T extends UserFindManyArgs>(
 ): Promise<UserGetPayload<T>[]> => {
   let queryOptions: UserFindManyArgs;
   if (query) {
-    const [firstname, lastname] = query.split(" ");
+    const searchTerms = query.trim().split(/\s+/);
 
     queryOptions = {
       where: {
-        OR: [
-          {
-            firstname: {
-              contains: firstname,
-              mode: "insensitive",
-            },
-          },
-          {
-            lastname: {
-              contains: lastname,
-              mode: "insensitive",
-            },
-          },
-        ],
+        AND: searchTerms.map((term) => ({
+          OR: [
+            { firstname: { contains: term, mode: "insensitive" } },
+            { lastname: { contains: term, mode: "insensitive" } },
+          ],
+        })),
         ...(options.where
           ? {
               ...options.where,

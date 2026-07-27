@@ -25,23 +25,15 @@ export const getUser = async (userId, options) => {
 export const getUsers = async (query, cursor, limit, options) => {
     let queryOptions;
     if (query) {
-        const [firstname, lastname] = query.split(" ");
+        const searchTerms = query.trim().split(/\s+/);
         queryOptions = {
             where: {
-                OR: [
-                    {
-                        firstname: {
-                            contains: firstname,
-                            mode: "insensitive",
-                        },
-                    },
-                    {
-                        lastname: {
-                            contains: lastname,
-                            mode: "insensitive",
-                        },
-                    },
-                ],
+                AND: searchTerms.map((term) => ({
+                    OR: [
+                        { firstname: { contains: term, mode: "insensitive" } },
+                        { lastname: { contains: term, mode: "insensitive" } },
+                    ],
+                })),
                 ...(options.where
                     ? {
                         ...options.where,

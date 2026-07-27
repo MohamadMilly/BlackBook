@@ -17,7 +17,7 @@ export const createComment = async <T extends Omit<CommentCreateArgs, "data">>(
       userId,
     },
   });
-
+  
   return comment as CommentGetPayload<T>;
 };
 
