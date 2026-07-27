@@ -30,7 +30,7 @@ export function LoginPage() {
   const errors: ResponseError[] = useMemo(() => {
     return getServerAndValidationErrors(error);
   }, [error]);
-
+  console.log(errors);
   useMarkFieldsInValid(errors);
 
   const handleLogInDataChange = useCallback(

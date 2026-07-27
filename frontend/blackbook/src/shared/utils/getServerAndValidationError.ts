@@ -8,6 +8,6 @@ export function getServerAndValidationErrors(
   return Array.isArray(errorData?.errors)
     ? errorData.errors
     : typeof rawErrorData === "object" && rawErrorData !== null
-      ? [rawErrorData as ResponseError]
+      ? [rawErrorData.response?.data as ResponseError]
       : [];
 }
