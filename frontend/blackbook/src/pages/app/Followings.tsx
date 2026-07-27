@@ -29,7 +29,7 @@ export function FollowingsPage() {
     if (!currentUser?.id || !numberUserId) return;
 
     if (numberUserId === currentUser?.id) {
-      navigate("/me/followings", { replace: true });
+      navigate("/app/me/followings", { replace: true });
     }
   }, [numberUserId, currentUser?.id, navigate]);
 

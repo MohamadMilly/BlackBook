@@ -2,6 +2,7 @@ import type { JSX } from "react/jsx-runtime";
 import { Avatar } from "./Avatar";
 import { ProfileIdentity } from "./ProfileIdentity";
 import type { FollowRequest } from "@app/types";
+import { ProfileHeaderSkeleton } from "./skeleton/ProfileHeaderSkeleton";
 
 type ProfileHeaderProps = {
   bannerUrl: string | null | undefined;
@@ -30,7 +31,7 @@ export function ProfileHeader({
   isFollowed,
   userId,
 }: ProfileHeaderProps): JSX.Element {
-  if (isLoading) return <p>loading...</p>;
+  if (isLoading) return <ProfileHeaderSkeleton />;
 
   return (
     <div
@@ -39,12 +40,12 @@ export function ProfileHeader({
         backgroundSize: "cover",
       }}
       className="w-full min-h-48 md:min-h-75 bg-neutral-900 flex items-end px-6 rounded"
-    >  
+    >
       <div className="w-full translate-y-1/3 flex gap-4 items-center justify-end md:justify-start md:flex-row flex-col">
         <Avatar
           avatarUrl={avatarUrl}
           size={130}
-          className="md:w-45! md:h-45!"
+          className="md:w-45! md:h-45! border-4 border-neutral-900"
         />
         <ProfileIdentity
           isLoading={isLoading}

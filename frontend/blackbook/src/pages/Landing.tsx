@@ -9,7 +9,7 @@ export function LandingPage() {
   const { user } = useAuth();
 
   if (user) {
-    return <Navigate to={"/me/feed"} />;
+    return <Navigate to={"/app/feed"} />;
   }
 
   return (

@@ -25,10 +25,10 @@ export const routes = [
   },
   {
     element: <App />,
-    path: "/me",
+    path: "/app",
     children: [
       {
-        element: <Navigate to={"feed"} replace />,
+        element: <Navigate to={"feed"} replace={true} />,
         index: true,
       },
       {
@@ -37,8 +37,10 @@ export const routes = [
       },
       {
         element: <ProfilePage />,
-        path: "profile",
+        path: "me",
       },
+      { element: <FollowersPage />, path: "me/followers" },
+      { element: <FollowingsPage />, path: "me/followings" },
       {
         element: <UsersPage />,
         path: "users",
@@ -47,20 +49,19 @@ export const routes = [
         element: <NewPostPage />,
         path: "newPost",
       },
-      { element: <FollowersPage />, path: "followers" },
-      { element: <FollowingsPage />, path: "followings" },
+
+      {
+        element: <ProfilePage />,
+        path: "users/:userId",
+      },
+      {
+        element: <FollowersPage />,
+        path: "users/:userId/followers",
+      },
+      {
+        element: <FollowingsPage />,
+        path: "users/:userId/followings",
+      },
     ],
-  },
-  {
-    element: <ProfilePage />,
-    path: "/users/:userId/profile",
-  },
-  {
-    element: <FollowersPage />,
-    path: "/users/:userId/followers",
-  },
-  {
-    element: <FollowingsPage />,
-    path: "users/:userId/followings",
   },
 ];

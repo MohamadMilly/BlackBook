@@ -6,17 +6,18 @@ import {
 } from "../generated/prisma/models.js";
 import { CreatePostRequestBody, Post } from "@app/types";
 
-export const getPosts = async (options: PostFindManyArgs) => {
+export const getPosts = async <T extends PostFindManyArgs>(
+  options: T,
+): Promise<PostGetPayload<T>[]> => {
   const posts = await prisma.post.findMany(options);
 
-  return posts;
+  return posts as PostGetPayload<T>[];
 };
 
-// An also valid approach but the approach in the next service is better
-export const getUserPosts = async <T extends Record<string, any> = {}>(
+export const getUserPosts = async <T extends PostFindManyArgs>(
   userId: number,
-  options: PostFindManyArgs,
-): Promise<(Omit<Post, keyof T> & T)[]> => {
+  options: T,
+): Promise<PostGetPayload<T>[]> => {
   const posts = await prisma.post.findMany({
     where: {
       userId: userId,
@@ -24,7 +25,7 @@ export const getUserPosts = async <T extends Record<string, any> = {}>(
     ...options,
   });
 
-  return posts as unknown as (Post & T)[];
+  return posts as PostGetPayload<T>[];
 };
 
 export const createPost = async <T extends Omit<PostCreateArgs, "data">>(

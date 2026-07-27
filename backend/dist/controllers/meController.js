@@ -37,14 +37,27 @@ export const getCurrentUserPosts = async (req, res, next) => {
     try {
         const posts = await getUserPosts(currentUser?.id, {
             include: {
-                user: true,
+                user: {
+                    include: {
+                        profile: true,
+                    },
+                },
                 likes: true,
+                _count: {
+                    select: {
+                        comments: true,
+                    },
+                },
             },
             orderBy: {
                 createdAt: "desc",
             },
         });
-        res.json({ posts: posts });
+        const postsWithCommentsCounts = posts.map(({ _count, ...post }) => ({
+            ...post,
+            commentsCount: _count.comments,
+        }));
+        res.json({ posts: postsWithCommentsCounts });
     }
     catch (err) {
         next(err);

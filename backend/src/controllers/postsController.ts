@@ -6,7 +6,7 @@ import { matchedData } from "express-validator";
 
 export const getPostsGet = async (
   req: AuthenticatedRequest,
-  res: Response,
+  res: Response<{ posts: Required<Post[]> }>,
   next: NextFunction,
 ) => {
   const currentUser = req.currentUser; // for giving the posts of followings
@@ -18,13 +18,24 @@ export const getPostsGet = async (
             profile: true,
           },
         },
-        likes: true,
+        likes:
+          true /* here we can only get the user like and return hasLiked instead of getting all likes and check in frontend
+        / but it is okay if likes are not so much */,
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
       },
     });
-    res.json({ posts });
+    const postsWithCommentsCounts = posts.map(({ _count, ...post }) => ({
+      ...post,
+      commentsCount: _count.comments,
+    }));
+    res.json({ posts: postsWithCommentsCounts });
   } catch (err) {
     next(err);
   }
@@ -57,7 +68,7 @@ export const create = async (
         },
       },
     );
-    res.json({ post });
+    res.json({ post: { ...post, commentsCount: 0 } });
   } catch (err) {
     next(err);
   }

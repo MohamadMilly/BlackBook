@@ -23,6 +23,15 @@ export type UserWithFollowCounts = {
   followingCount: number;
 };
 
+export type Comment = {
+  postId: number;
+  text: string;
+  id: number;
+  userId: number;
+  createdAt: Date;
+  user?: Omit<User, "password">;
+};
+
 export type UserFollowDataType = {
   hasPendingFollowRequest: boolean;
   pendingFollowRequest?: FollowRequest;
@@ -38,6 +47,7 @@ export type Post = {
   userId: number;
   createdAt: Date;
   likes: Like[];
+  commentsCount?: number;
 };
 
 export type Like = {

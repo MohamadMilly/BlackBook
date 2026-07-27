@@ -5,6 +5,7 @@ import { useCallback } from "react";
 import type { FollowRequest } from "@app/types";
 import { useRejectOrCancelFollowRequest } from "../../../hooks/api/users/useRejectOrCancelFollowRequest";
 import { useUnFollowUser } from "../../../hooks/api/users/useUnFollowUser";
+import { ProfileIdentitySkeleton } from "./skeleton/ProfileIdentitySkeleton";
 
 type ProfileIdentityProps = {
   name: string;
@@ -31,7 +32,6 @@ export function ProfileIdentity({
   isFollowed,
   userId,
 }: ProfileIdentityProps) {
-  if (isLoading) return <p>Loading...</p>;
   const {
     mutate: sendRequest,
     isPending: isSendingPending,
@@ -63,6 +63,7 @@ export function ProfileIdentity({
   const handleUnFollow = () => {
     unFollow(userId);
   };
+  if (isLoading) return <ProfileIdentitySkeleton className={className} />;
   return (
     <div className={`mix-blend-difference ${className}`}>
       <div className="flex items-center gap-2 flex-col sm:flex-row sm:items-center">
@@ -95,11 +96,14 @@ export function ProfileIdentity({
       </div>
 
       <div className="text-sm text-neutral-400 flex gap-1">
-        <Link className="hover:underline" to={`/users/${userId}/followers`}>
+        <Link className="hover:underline" to={`/app/users/${userId}/followers`}>
           Followers: {followersCount}
         </Link>
         <span className="text-neutral-600">•</span>
-        <Link className="hover:underline" to={`/users/${userId}/followings`}>
+        <Link
+          className="hover:underline"
+          to={`/app/users/${userId}/followings`}
+        >
           Following: {followingCount}
         </Link>
       </div>

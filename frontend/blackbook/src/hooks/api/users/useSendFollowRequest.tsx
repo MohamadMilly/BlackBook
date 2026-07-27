@@ -29,7 +29,7 @@ export function useSendFollowRequest() {
         // notice the plural (queries)
         queryKey: rootQueryKey,
       });
-
+      
       updateUserFollowStatus({
         queryClient,
         userId: receiverId,

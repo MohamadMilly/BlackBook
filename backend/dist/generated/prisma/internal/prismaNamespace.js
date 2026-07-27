@@ -71,6 +71,7 @@ export const ModelName = {
     Profile: 'Profile',
     Post: 'Post',
     Like: 'Like',
+    Comment: 'Comment',
     FollowRequest: 'FollowRequest'
 };
 /**
@@ -109,6 +110,13 @@ export const LikeScalarFieldEnum = {
     id: 'id',
     postId: 'postId',
     userId: 'userId',
+    createdAt: 'createdAt'
+};
+export const CommentScalarFieldEnum = {
+    id: 'id',
+    text: 'text',
+    userId: 'userId',
+    postId: 'postId',
     createdAt: 'createdAt'
 };
 export const FollowRequestScalarFieldEnum = {

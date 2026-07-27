@@ -1,5 +1,6 @@
 import type { User, UserFollowDataType } from "@app/types";
 import { UserItem } from "./UserItem";
+import { Spinner } from "../../shared/ui/Spinner";
 
 type UsersList = {
   isLoading: boolean;
@@ -8,7 +9,10 @@ type UsersList = {
 };
 
 export function UsersList({ isLoading, error, users }: UsersList) {
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading)
+    return (
+      <Spinner size={32} className="w-full flex justify-center items-center" />
+    );
   if (error) return <p className="text-red-500">Error: {error.message}</p>;
   if (users.length === 0)
     return (

@@ -39,7 +39,7 @@ export function NewPostPage() {
     e.preventDefault();
     createPost(postData, {
       onSuccess: () => {
-        navigate("/me/feed");
+        navigate("/app/feed");
       },
     });
   };

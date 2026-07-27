@@ -42,7 +42,7 @@ export function UserItem({
         <Avatar className="shrink-0" size={45} avatarUrl={avatarUrl} />
         <div className="grow flex flex-col justify-start">
           <p className="font-bold tracking-tight">
-            <Link to={`/users/${user.id}/profile`} className="hover:underline">
+            <Link to={`/app/users/${user.id}`} className="hover:underline">
               {fullname}
             </Link>
           </p>

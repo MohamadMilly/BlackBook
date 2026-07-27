@@ -5,6 +5,7 @@ import * as postsController from "../controllers/postsController.js";
 import { validateCreatePost } from "../middlewares/posts/validation/validateCreatePost.js";
 import { handleValidationErrors } from "../middlewares/shared/handleValidationErrors.js";
 import * as likesController from "../controllers/likesController.js";
+import * as commentsController from "../controllers/commentsController.js";
 
 export const postsRouter = express.Router();
 
@@ -19,3 +20,5 @@ postsRouter.post(
   postsController.create,
 );
 postsRouter.post("/:postId/likes", likesController.toggleLikePost);
+postsRouter.post("/:postId/comments", commentsController.createCommentPost);
+postsRouter.get("/:postId/comments", commentsController.getPostCommentsGet);

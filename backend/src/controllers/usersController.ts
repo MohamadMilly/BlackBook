@@ -70,25 +70,38 @@ export const getUserGet = async (
 
 export const getUserPostsGet = async (
   req: Request<{ userId: string }>,
-  res: Response<{ posts: Required<Post>[] }>,
+  res: Response<{ posts: Required<Post[]> }>,
   next: NextFunction,
 ) => {
   const { userId } = req.params;
   try {
-    const posts = await getUserPosts<Required<Post>>(JSON.parse(userId), {
+    const posts = await getUserPosts(JSON.parse(userId), {
       include: {
         user: {
-          include: {
+          select: {
+            id: true,
+            firstname: true,
+            lastname: true,
+            username: true,
+            createdAt: true,
             profile: true,
           },
         },
         likes: true,
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
       },
     });
-    res.json({ posts });
+    const postsWithCommentsCounts = posts.map(({ _count, ...post }) => {
+      return { ...post, commentsCount: _count.comments };
+    });
+    res.json({ posts: postsWithCommentsCounts });
   } catch (err) {
     next(err);
   }

@@ -1,7 +1,8 @@
 import type { CreatePostRequestBody, Post, ResponseError } from "@app/types";
 import { apiClient } from "../../../api/api";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
+import { useAuth } from "../../../contexts/authContext";
 
 const createPost = async ({
   title,
@@ -17,6 +18,8 @@ const createPost = async ({
 };
 
 export function useCreatePost() {
+  const queryClient = useQueryClient();
+  const { user: currentUser } = useAuth();
   return useMutation<
     { post: Required<Post> },
     AxiosError<ResponseError>,
@@ -24,5 +27,26 @@ export function useCreatePost() {
   >({
     mutationKey: ["createPost"],
     mutationFn: createPost,
+    onSuccess: (data) => {
+      queryClient.setQueryData(["posts"], (old: { posts: Post[] }) => {
+        if (!old?.posts) return old;
+
+        return {
+          ...old,
+          posts: [data.post, ...old.posts],
+        };
+      });
+      queryClient.setQueryData(
+        ["posts", currentUser?.id],
+        (old: { posts: Post[] }) => {
+          if (!old?.posts) return old;
+
+          return {
+            ...old,
+            posts: [data.post, ...old.posts],
+          };
+        },
+      );
+    },
   });
 }

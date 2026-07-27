@@ -3,7 +3,6 @@ export const getPosts = async (options) => {
     const posts = await prisma.post.findMany(options);
     return posts;
 };
-// An also valid approach but the approach in the next service is better
 export const getUserPosts = async (userId, options) => {
     const posts = await prisma.post.findMany({
         where: {

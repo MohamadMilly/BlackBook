@@ -47,25 +47,34 @@ export { getCurrentUserGet };
 
 export const getCurrentUserPosts = async (
   req: AuthenticatedRequest,
-  res: Response<{ posts: Required<Post>[] }>,
+  res: Response<{ posts: Required<Post[]> }>,
   next: NextFunction,
 ) => {
   const currentUser = req.currentUser;
   try {
-    const posts = await getUserPosts<Required<Post>>(
-      currentUser?.id as number,
-      {
-        include: {
-          user: true,
-          likes: true,
+    const posts = await getUserPosts(currentUser?.id as number, {
+      include: {
+        user: {
+          include: {
+            profile: true,
+          },
         },
-        orderBy: {
-          createdAt: "desc",
+        likes: true,
+        _count: {
+          select: {
+            comments: true,
+          },
         },
       },
-    );
-
-    res.json({ posts: posts });
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    const postsWithCommentsCounts = posts.map(({ _count, ...post }) => ({
+      ...post,
+      commentsCount: _count.comments,
+    }));
+    res.json({ posts: postsWithCommentsCounts });
   } catch (err) {
     next(err);
   }

@@ -76,7 +76,15 @@ export function useLikePost() {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({
+        queryKey: ["posts"],
+        predicate: (query) => {
+          const queryKey = query.queryKey;
+          const isCommentsQuery = queryKey.includes("comments");
+
+          return !isCommentsQuery;
+        },
+      });
     },
   });
 }

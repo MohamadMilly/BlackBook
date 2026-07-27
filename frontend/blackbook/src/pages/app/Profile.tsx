@@ -1,11 +1,11 @@
-import { Navigate, useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { SectionWrapper } from "../../components/app/layout/SectionWrapper";
 import { ProfileHeader } from "../../components/app/profile/ProfileHeader";
 import { useAuth } from "../../contexts/authContext";
 import { useUser } from "../../hooks/api/users/useUser";
 import { ProfileField } from "../../components/app/profile/ProfileField";
 import { AtSign } from "lucide-react";
-import { PostsList } from "../../components/app/feed/PostsList";
+import { PostsList } from "../../components/app/feed/posts/PostsList";
 import { useUserPosts } from "../../hooks/api/posts/useUserPosts";
 import type { Post } from "@app/types";
 import { ProfileIdentity } from "../../components/app/profile/ProfileIdentity";
@@ -16,14 +16,6 @@ export function ProfilePage() {
   const numberUserId = userId ? JSON.parse(userId) : null;
   const { user: currentUser } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!currentUser?.id || !numberUserId) return;
-     
-    if (numberUserId === currentUser?.id) {
-      navigate("/me/profile", { replace: true });
-    }
-  }, [numberUserId, currentUser?.id, navigate]);
 
   const definedUserId: number = userId ? numberUserId : currentUser?.id;
   const {
@@ -45,8 +37,22 @@ export function ProfilePage() {
   const fullname = user ? `${user.firstname} ${user.lastname}` : "";
   const profile = user?.profile;
   const isCurrentUserProfile = user ? user.id === currentUser?.id : false;
+
+  useEffect(() => {
+    if (!currentUser?.id || !numberUserId) return;
+
+    if (isCurrentUserProfile) {
+      navigate("/app/me", { replace: true });
+    }
+  }, [numberUserId, currentUser?.id, navigate]);
   return (
-    <SectionWrapper title="Profile">
+    <SectionWrapper
+      title={
+        !isCurrentUserProfile && user
+          ? `${user?.firstname}'s Profile`
+          : "Profile"
+      }
+    >
       {userFetchError ? (
         <p className="text-red-500">
           Error loading profile: {userFetchError.message || "Unknown error"}
@@ -66,7 +72,7 @@ export function ProfilePage() {
             userId={definedUserId}
             pendingFollowRequest={pendingFollowRequest}
           />
-
+          
           <ProfileIdentity
             isLoading={isLoadingUser}
             className="mt-14 flex flex-col items-center gap-1 md:hidden"

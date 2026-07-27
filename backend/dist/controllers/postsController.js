@@ -10,13 +10,23 @@ export const getPostsGet = async (req, res, next) => {
                         profile: true,
                     },
                 },
-                likes: true,
+                likes: true /* here we can only get the user like and return hasLiked instead of getting all likes and check in frontend
+              / but it is okay if likes are not so much */,
+                _count: {
+                    select: {
+                        comments: true,
+                    },
+                },
             },
             orderBy: {
                 createdAt: "desc",
             },
         });
-        res.json({ posts });
+        const postsWithCommentsCounts = posts.map(({ _count, ...post }) => ({
+            ...post,
+            commentsCount: _count.comments,
+        }));
+        res.json({ posts: postsWithCommentsCounts });
     }
     catch (err) {
         next(err);
@@ -41,7 +51,7 @@ export const create = async (req, res, next) => {
                 likes: true,
             },
         });
-        res.json({ post });
+        res.json({ post: { ...post, commentsCount: 0 } });
     }
     catch (err) {
         next(err);

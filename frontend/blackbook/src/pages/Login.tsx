@@ -43,7 +43,7 @@ export function LoginPage() {
   const handleLoginSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     login(logInData, {
-      onSuccess: () => navigate("/me"),
+      onSuccess: () => navigate("/app/me"),
     });
   };
 

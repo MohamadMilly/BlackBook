@@ -34,7 +34,7 @@ export function FollowersPage() {
     if (!currentUser?.id || !numberUserId) return;
 
     if (numberUserId === currentUser?.id) {
-      navigate("/me/followers", { replace: true });
+      navigate("/app/me/followers", { replace: true });
     }
   }, [numberUserId, currentUser?.id, navigate]);
 
