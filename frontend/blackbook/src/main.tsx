@@ -13,12 +13,12 @@ const client = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AuthProvider>
-      <CommentsPanelContextProvider>
-        <QueryClientProvider client={client}>
+    <QueryClientProvider client={client}>
+      <AuthProvider>
+        <CommentsPanelContextProvider>
           <RouterProvider router={router} />
-        </QueryClientProvider>
-      </CommentsPanelContextProvider>
-    </AuthProvider>
+        </CommentsPanelContextProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   </StrictMode>,
 );
