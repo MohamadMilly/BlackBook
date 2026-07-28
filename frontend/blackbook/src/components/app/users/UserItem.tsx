@@ -38,15 +38,15 @@ export function UserItem({
       }}
       className="bg-linear-to-r from-transparent via-transparent to-neutral-900 via-20% bg-cover bg-center bg-neutral-900 flex items-center justify-between rounded-lg p-4"
     >
-      <div className="flex items-start gap-2 mix-blend-difference">
+      <div className="flex items-start gap-2">
         <Avatar className="shrink-0" size={45} avatarUrl={avatarUrl} />
-        <div className="grow flex flex-col justify-start">
+        <div className="grow flex flex-col justify-start blend-element">
           <p className="font-bold tracking-tight">
             <Link to={`/app/users/${user.id}`} className="hover:underline">
               {fullname}
             </Link>
           </p>
-          <span className="text-neutral-400 text-xs">
+          <span className="text-neutral-300 text-xs">
             Joined at: {formattedJoinedAtDate}
           </span>
         </div>

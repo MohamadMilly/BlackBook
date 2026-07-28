@@ -19,7 +19,7 @@ export function useUserPosts(userId: number) {
   const { data, isLoading, error } = useQuery({
     queryFn: () => getUserPosts(userId, currentUser?.id),
     queryKey: ["posts", userId],
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 2,
   });
   const posts = data?.posts ?? [];
   return { posts, isLoading, error };

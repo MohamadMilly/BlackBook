@@ -1,4 +1,4 @@
-import { getUser } from "../services/usersService.js";
+import { getUser, patchProfile } from "../services/usersService.js";
 import { getUserPosts } from "../services/postsService.js";
 const getCurrentUserGet = async (req, res, next) => {
     const currentUserId = req.currentUser?.id;
@@ -58,6 +58,17 @@ export const getCurrentUserPosts = async (req, res, next) => {
             commentsCount: _count.comments,
         }));
         res.json({ posts: postsWithCommentsCounts });
+    }
+    catch (err) {
+        next(err);
+    }
+};
+export const patchProfilePatch = async (req, res, next) => {
+    const data = req.body;
+    const currentUserId = req.currentUser?.id;
+    try {
+        const updatedProfile = await patchProfile(currentUserId, data);
+        res.json({ profile: updatedProfile });
     }
     catch (err) {
         next(err);

@@ -34,7 +34,7 @@ export type Comment = {
 
 export type UserFollowDataType = {
   hasPendingFollowRequest: boolean;
-  pendingFollowRequest?: FollowRequest;
+  pendingFollowRequest?: FollowRequest | null;
   isFollowed: boolean;
 };
 
@@ -105,7 +105,7 @@ export type ResponseError = {
 };
 
 export interface CreatePostRequestBody
-  extends Omit<Post, "id" | "user" | "createdAt" | "userId" | "likes"> {}
+  extends Pick<Post, "images" | "content" | "title"> {}
 
 export type ToggleLikeResponseBody = {
   operation: "create" | "delete";
@@ -116,7 +116,7 @@ export type GetUserResponseBody = {
   user: Omit<User, "password">;
   followingCount: number;
   followersCount: number;
-} & UserFollowDataType;
+} & Required<UserFollowDataType>;
 
 export type CurrentUserData = {
   user: Omit<User, "password">;

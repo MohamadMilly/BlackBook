@@ -15,6 +15,7 @@ export function usePostComments(postId: number | null) {
     queryKey: ["posts", postId, "comments"],
     queryFn: () => getPostComments(postId as number),
     enabled: !!postId,
+    staleTime: 1000 * 60 * 2,
   });
 
   const comments = data?.comments ?? [];

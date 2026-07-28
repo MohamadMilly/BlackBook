@@ -29,3 +29,5 @@ meRouter.delete(
   "/following/:userId",
   followRequestsController.unFollowUserDelete,
 );
+
+meRouter.patch("/profile", meController.patchProfilePatch);

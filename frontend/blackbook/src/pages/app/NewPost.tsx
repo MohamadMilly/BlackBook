@@ -9,6 +9,10 @@ import { useMarkFieldsInValid } from "../../hooks/utils/useMarkFieldsInvalid";
 import { useNavigate } from "react-router";
 import { getServerAndValidationErrors } from "../../shared/utils/getServerAndValidationError";
 import { ErrorsList } from "../../components/form/ErrorsList";
+import { useUpload, type uploadDataType } from "../../hooks/utils/useUpload";
+import { FileUploader } from "../../components/shared/utils/FileUploader";
+import { Upload } from "lucide-react";
+import { UploadedImagesStrip } from "../../components/app/newPost/UploadedImagesStrip";
 
 export function NewPostPage() {
   const [postData, setPostData] = useState<CreatePostRequestBody>({
@@ -22,6 +26,8 @@ export function NewPostPage() {
     isPending: isCreatingPostPending,
     error: postCreationError,
   } = useCreatePost();
+
+  const { isUploading, upload } = useUpload();
 
   const errors: ResponseError[] = useMemo(
     () => getServerAndValidationErrors(postCreationError),
@@ -42,6 +48,25 @@ export function NewPostPage() {
         navigate("/app/feed");
       },
     });
+  };
+  const onUploadingImagesSuccess = (results: uploadDataType[]) => {
+    const successUploadData = results.filter((result) => result.success);
+    if (successUploadData.length === 0) {
+      console.error("failed uploading all images for post");
+      return;
+    }
+    const urls = successUploadData.map((result) => result.url);
+    setPostData((prev) => ({
+      ...prev,
+      images: [...prev.images, ...urls],
+    }));
+  };
+
+  const handleDeleteImage = (imageUrl: string): void => {
+    if (postData.images.includes(imageUrl)) {
+      const nextImages = postData.images.filter((image) => image !== imageUrl);
+      setPostData((prev) => ({ ...prev, images: nextImages }));
+    }
   };
   return (
     <SectionWrapper title="New Post">
@@ -82,7 +107,36 @@ export function NewPostPage() {
             required
           />
         </div>
-        <Button disabled={isCreatingPostPending} type="submit">
+        <div className="my-4">
+          <label
+            htmlFor="files"
+            className="optional-label tracking-wide font-medium"
+          >
+            Files
+          </label>
+          <UploadedImagesStrip
+            images={postData.images}
+            handleDeleteImage={handleDeleteImage}
+          />
+          <FileUploader
+            accept="image/*"
+            bucketName="images"
+            id="files"
+            disabled={isUploading}
+            upload={upload}
+            onSuccess={onUploadingImagesSuccess}
+            allowMultiple={true}
+            className="flex hover:bg-neutral-900 text-neutral-400 disabled:brightness-50 flex-col gap-1 justify-center items-center min-h-40  w-full rounded-lg bg-neutral-950 border border-dashed border-neutral-800"
+          >
+            <Upload size={30} />
+            {isUploading ? (
+              <p>Uploading...</p>
+            ) : (
+              <p>Append Images to the post</p>
+            )}
+          </FileUploader>
+        </div>
+        <Button className="mt-6" disabled={isCreatingPostPending} type="submit">
           {isCreatingPostPending ? "Creating..." : "Create"}
         </Button>
       </form>

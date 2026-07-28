@@ -1,7 +1,7 @@
 import type { Response, NextFunction } from "express";
 import { AuthenticatedRequest } from "../types/index.js";
-import { getUser } from "../services/usersService.js";
-import { CurrentUserData, Post, User } from "@app/types";
+import { getUser, patchProfile } from "../services/usersService.js";
+import { CurrentUserData, Post, Profile, User } from "@app/types";
 import { getUserPosts } from "../services/postsService.js";
 
 const getCurrentUserGet = async (
@@ -75,6 +75,22 @@ export const getCurrentUserPosts = async (
       commentsCount: _count.comments,
     }));
     res.json({ posts: postsWithCommentsCounts });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const patchProfilePatch = async (
+  req: AuthenticatedRequest,
+  res: Response<{ profile: Profile }>,
+  next: NextFunction,
+) => {
+  const data = req.body;
+  const currentUserId = req.currentUser?.id;
+  try {
+    const updatedProfile = await patchProfile(currentUserId as number, data);
+
+    res.json({ profile: updatedProfile });
   } catch (err) {
     next(err);
   }
