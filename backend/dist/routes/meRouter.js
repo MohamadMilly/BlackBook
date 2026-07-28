@@ -14,3 +14,4 @@ meRouter.post("/requests/:requestId", followRequestsController.acceptFollowReque
 meRouter.get("/requests/count", followRequestsController.getFollowRequestsCountGet);
 meRouter.delete("/requests/:requestId", followRequestsController.cancelOrRejectFollowRequestDelete);
 meRouter.delete("/following/:userId", followRequestsController.unFollowUserDelete);
+meRouter.patch("/profile", meController.patchProfilePatch);

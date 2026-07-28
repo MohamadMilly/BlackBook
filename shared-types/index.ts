@@ -105,7 +105,7 @@ export type ResponseError = {
 };
 
 export interface CreatePostRequestBody
-  extends Omit<Post, "id" | "user" | "createdAt" | "userId" | "likes"> {}
+  extends Pick<Post, "images" | "content" | "title"> {}
 
 export type ToggleLikeResponseBody = {
   operation: "create" | "delete";

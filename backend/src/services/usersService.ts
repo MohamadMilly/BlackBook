@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma.js";
 import { SignUpRequestBody, User } from "@app/types";
 import {
+  ProfileUpdateInput,
   UserFindManyArgs,
   UserFindUniqueArgs,
   UserGetPayload,
@@ -86,41 +87,6 @@ export const getUsers = async <T extends UserFindManyArgs>(
   return users as UserGetPayload<T>[];
 };
 
-/* 
-export const getUserFollowers = async <T extends UserFindUniqueArgs>(
-  userId: number,
-  options: T,
-): Promise<UserGetPayload<T>[]> => {
-  const user = await prisma.user.findUnique({
-    ...options,
-    where: {
-      id: userId,
-    },
-    select: {
-      followers: true,
-    },
-  });
-
-  return user?.followers as UserGetPayload<T>[];
-};
-
-export const getUsersFollowings = async <T extends UserFindUniqueArgs>(
-  userId: number,
-  options: T,
-): Promise<UserGetPayload<T>[]> => {
-  const user = await prisma.user.findUnique({
-    ...options,
-    where: {
-      id: userId,
-    },
-    select: {
-      following: true,
-    },
-  });
-
-  return user?.following as UserGetPayload<T>[];
-};
-*/
 export const toggleFollowUser = async (
   followerId: number,
   followedUserId: number,
@@ -166,4 +132,18 @@ export const toggleFollowUser = async (
     operation = "follow";
   }
   return operation;
+};
+
+export const patchProfile = async (
+  userId: number,
+  data: ProfileUpdateInput,
+) => {
+  return await prisma.profile.update({
+    where: {
+      userId: userId,
+    },
+    data: {
+      ...data,
+    },
+  });
 };

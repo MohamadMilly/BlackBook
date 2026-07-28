@@ -4,17 +4,22 @@ import { Avatar } from "../../profile/Avatar";
 import type { Post } from "@app/types";
 import { formatDate } from "../../../../shared/utils/formatDate";
 import { useLikePost } from "../../../../hooks/api/likes/useLikePost";
-import { useCallback } from "react";
+import { memo, useCallback } from "react";
 import { useAuth } from "../../../../contexts/authContext";
 import { Link } from "react-router";
+import { PostImagesGrid } from "./PostImagesGrid";
 
-export function PostCard({
-  post,
-  handlePostIdChange,
-}: {
+type PostCardProps = {
   post: Required<Post>;
   handlePostIdChange: (newPostId: number | null) => void;
-}) {
+  handleImagesUrlsChange: (newImagesUrls: string[]) => void;
+};
+
+export const PostCard = memo(function PostCard({
+  post,
+  handlePostIdChange,
+  handleImagesUrlsChange,
+}: PostCardProps) {
   const { user: currentUser } = useAuth();
   const { content, title, user, createdAt } = post;
   const authorProfile = user.profile;
@@ -56,19 +61,23 @@ export function PostCard({
         <p className="text-neutral-200 leading-relaxed wrap-break-word line-clamp-4">
           {content}
         </p>
+        <PostImagesGrid
+          images={post.images}
+          handleImagesUrlsChange={handleImagesUrlsChange}
+        />
       </div>
 
       <div className="flex items-center border border-neutral-800 rounded-lg  divide-x divide-neutral-800">
         <Button
           onClick={handleToggleLike}
-          className={`grow rounded-r-none flex items-center gap-1 ${isCurrentUserLiking ? "bg-blue-600!" : ""}`}
+          className={`basis-1/2 rounded-r-none flex items-center gap-1 ${isCurrentUserLiking ? "bg-blue-600!" : ""}`}
         >
           <ThumbsUp fill={isCurrentUserLiking ? "white" : "none"} size={25} />{" "}
           Like ( {likesCount} )
         </Button>
         <Button
           onClick={() => handlePostIdChange(post.id)}
-          className="grow rounded-l-none flex items-center gap-1"
+          className="basis-1/2 rounded-l-none flex items-center gap-1"
         >
           <span>
             <MessageCircleMore size={25} />
@@ -78,4 +87,4 @@ export function PostCard({
       </div>
     </article>
   );
-}
+});

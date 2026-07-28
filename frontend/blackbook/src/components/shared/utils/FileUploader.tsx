@@ -1,18 +1,35 @@
-import { useRef, type ChangeEvent } from "react";
-/* under development */
-export function FileUploader({
-  upload,
-  isUploading,
-  bucketName,
-  accept,
-  className,
-}: {
-  upload: (files: File[], bucketName: string) => void;
-  isUploading: boolean;
+import {
+  useRef,
+  type ChangeEvent,
+  type ComponentPropsWithoutRef,
+  type ReactNode,
+} from "react";
+import type { uploadDataType } from "../../../hooks/utils/useUpload";
+
+type FileUploaderProps = {
+  upload: (
+    files: File[],
+    bucketName: string,
+    { onSuccess }: { onSuccess?: (results: uploadDataType[]) => void },
+  ) => Promise<uploadDataType[] | undefined>;
   bucketName: string;
   accept: string;
   className?: string;
-}) {
+  onSuccess?: (results: uploadDataType[]) => void;
+  children: ReactNode;
+  allowMultiple?: boolean;
+} & ComponentPropsWithoutRef<"button">;
+
+export function FileUploader({
+  upload,
+  bucketName,
+  accept,
+  className,
+  onSuccess,
+  children,
+  allowMultiple,
+  ...props
+}: FileUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleTriggerFileInput = () => {
     const fileInput = fileInputRef.current;
@@ -21,21 +38,24 @@ export function FileUploader({
     }
   };
   const handleSelectAndUploadFile = (e: ChangeEvent<HTMLInputElement>) => {
-    const selected = e.currentTarget.files ?? [];
-    if (selected?.length > 0) {
-      const file = selected[0];
-      upload([file], bucketName);
+    const selectedFiles = e.currentTarget.files
+      ? Array.from(e.currentTarget.files)
+      : [];
+
+    if (selectedFiles?.length > 0) {
+      upload(selectedFiles, bucketName, { onSuccess: onSuccess });
     }
   };
 
   return (
-    <form method="POST" onSubmit={(e) => e.preventDefault()}>
+    <div>
       <button
+        {...props}
         onClick={handleTriggerFileInput}
         type="button"
-        className={className}
+        className={`${className} cursor-pointer`}
       >
-        {isUploading ? "Uploading..." : "Upload"}
+        {children}
       </button>
       <input
         type="file"
@@ -43,7 +63,8 @@ export function FileUploader({
         ref={fileInputRef}
         accept={accept}
         onChange={handleSelectAndUploadFile}
+        multiple={allowMultiple}
       />
-    </form>
+    </div>
   );
 }

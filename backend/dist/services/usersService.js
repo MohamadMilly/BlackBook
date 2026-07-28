@@ -60,41 +60,6 @@ export const getUsers = async (query, cursor, limit, options) => {
     });
     return users;
 };
-/*
-export const getUserFollowers = async <T extends UserFindUniqueArgs>(
-  userId: number,
-  options: T,
-): Promise<UserGetPayload<T>[]> => {
-  const user = await prisma.user.findUnique({
-    ...options,
-    where: {
-      id: userId,
-    },
-    select: {
-      followers: true,
-    },
-  });
-
-  return user?.followers as UserGetPayload<T>[];
-};
-
-export const getUsersFollowings = async <T extends UserFindUniqueArgs>(
-  userId: number,
-  options: T,
-): Promise<UserGetPayload<T>[]> => {
-  const user = await prisma.user.findUnique({
-    ...options,
-    where: {
-      id: userId,
-    },
-    select: {
-      following: true,
-    },
-  });
-
-  return user?.following as UserGetPayload<T>[];
-};
-*/
 export const toggleFollowUser = async (followerId, followedUserId) => {
     let operation;
     const existingFollower = await prisma.user.findFirst({
@@ -138,4 +103,14 @@ export const toggleFollowUser = async (followerId, followedUserId) => {
         operation = "follow";
     }
     return operation;
+};
+export const patchProfile = async (userId, data) => {
+    return await prisma.profile.update({
+        where: {
+            userId: userId,
+        },
+        data: {
+            ...data,
+        },
+    });
 };

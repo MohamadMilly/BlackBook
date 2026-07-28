@@ -51,6 +51,12 @@ p {
     border-radius: 9999px;
   }
 
+  .blend-element {
+    color: #fff;
+    mix-blend-mode: difference;
+    filter: grayscale(100%) contrast(10000%);
+  }
+
   .scrollbar-custom::-webkit-scrollbar-thumb {
     background: #2563eb;
     border-radius: 9999px;

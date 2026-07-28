@@ -12,7 +12,11 @@ export function useUpload() {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadsData, setUploadsData] = useState<uploadDataType[]>([]);
 
-  const upload = async (files: File[], bucketName: string) => {
+  const upload = async (
+    files: File[],
+    bucketName: string,
+    { onSuccess }: { onSuccess?: (formattedUploads: uploadDataType[]) => void },
+  ): Promise<uploadDataType[] | undefined> => {
     try {
       setIsUploading(true);
 
@@ -67,6 +71,11 @@ export function useUpload() {
       });
 
       setUploadsData(formattedUploads);
+      if (formattedUploads && typeof onSuccess === "function") {
+        onSuccess(formattedUploads);
+      }
+
+      return formattedUploads;
     } catch (err) {
       console.error("Unexpected Error occured: ", err);
     } finally {
