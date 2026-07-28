@@ -52,13 +52,19 @@ export const PostCard = memo(function PostCard({
         <span className="text-xs text-neutral-400">{formattedDate}</span>
       </div>
 
-      <div className="space-y-2 mb-5 min-h-40">
+      <div className="space-y-2 mb-5 min-h-40 whitespace-pre-wrap">
         {title && (
-          <h3 className="text-lg font-bold text-neutral-100 tracking-tight leading-snug hover:text-blue-500 transition-colors cursor-pointer">
+          <h3
+            dir="auto"
+            className="text-lg font-bold text-neutral-100 tracking-tight leading-snug hover:text-blue-500 transition-colors cursor-pointer"
+          >
             {title}
           </h3>
         )}
-        <p className="text-neutral-200 leading-relaxed wrap-break-word line-clamp-4">
+        <p
+          className="text-neutral-200 leading-relaxed wrap-break-word"
+          dir="auto"
+        >
           {content}
         </p>
         <PostImagesGrid

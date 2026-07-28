@@ -30,7 +30,9 @@ export function CommentItem({ comment }: CommentItemProps) {
             <span className="text-xs text-neutral-400">(you)</span>
           )}
         </Link>
-        <p className="text-sm text-neutral-300">{comment.text}</p>
+        <p className="text-sm text-neutral-300 whitespace-pre-wrap" dir="auto">
+          {comment.text}
+        </p>
       </article>
     </li>
   );
