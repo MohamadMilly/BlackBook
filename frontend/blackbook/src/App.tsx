@@ -14,15 +14,11 @@ function App() {
   const { postId, handlePostIdChange } = useCommentsPanel();
   const location = useLocation();
   const [previewImagesUrls, setPreviewImagesUrls] = useState<string[]>([]); // if the images are too much you should fetch them independently okay !
-   
+
   // when the pathname location changes close the panel
   useEffect(() => {
     handlePostIdChange(null);
   }, [location.pathname]);
-
-  if (!user) {
-    return <Navigate to={"/"} replace={true} />;
-  }
 
   const handleImagesUrlsChange = useCallback((newImagesUrls: string[]) => {
     setPreviewImagesUrls(newImagesUrls);
@@ -35,6 +31,11 @@ function App() {
     }),
     [handleImagesUrlsChange, previewImagesUrls],
   );
+
+  if (!user) {
+    return <Navigate to={"/"} replace={true} />;
+  }
+
   return (
     <PostImagesContext value={PostImagesContextValue}>
       <div className="grid grid-cols-1 grid-rows-[50px_1fr_60px] md:grid-cols-[auto_1fr_auto] md:grid-rows-[50px_1fr] h-full">
@@ -42,7 +43,6 @@ function App() {
         <Header />
         <Outlet />
         <InlinePanel isOpen={!!postId}>
-          {" "}
           {/* Reset the state by changing keys */}
           <CommentsPanelContent key={postId ?? 0} postId={postId} />
         </InlinePanel>

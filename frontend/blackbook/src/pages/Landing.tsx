@@ -4,10 +4,11 @@ import { LandingHeader } from "../components/Landing/Header";
 import { LandingSections } from "../components/Landing/Sections";
 import { NavBar } from "../components/Landing/NavBar";
 import { useAuth } from "../contexts/authContext";
+import { useState } from "react";
 
 export function LandingPage() {
   const { user } = useAuth();
-
+ 
   if (user) {
     return <Navigate to={"/app/feed"} />;
   }
