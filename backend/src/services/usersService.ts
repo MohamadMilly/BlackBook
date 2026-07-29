@@ -3,6 +3,7 @@ import { prisma } from "../lib/prisma.js";
 import { SignUpRequestBody, User } from "@app/types";
 import {
   ProfileUpdateInput,
+  UserCreateArgs,
   UserFindManyArgs,
   UserFindUniqueArgs,
   UserGetPayload,
@@ -13,14 +14,19 @@ export const createUser = async ({
   password,
   firstname,
   lastname,
-}: Omit<SignUpRequestBody, "confirmPassword">) => {
+  avatarUrl,
+}: Omit<SignUpRequestBody, "confirmPassword"> & { avatarUrl?: string }) => {
   const user = await prisma.user.create({
     data: {
       firstname,
       lastname,
       username,
       password: await bcrypt.hash(password, 10),
-      profile: { create: {} },
+      profile: {
+        create: {
+          ...(avatarUrl ? { avatarUrl } : {}),
+        },
+      },
     },
   });
 

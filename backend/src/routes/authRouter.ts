@@ -18,4 +18,6 @@ authRouter.post(
   handleValidationErrors,
   authController.signUpPost,
 );
+
 authRouter.post("/refresh", authController.refreshTokenPost);
+authRouter.post("/google", authController.authByGooglePost);

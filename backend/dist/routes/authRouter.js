@@ -7,3 +7,4 @@ export const authRouter = express.Router();
 authRouter.post("/login", validateLogin, handleValidationErrors, authController.loginPost);
 authRouter.post("/signup", validateSignUp, handleValidationErrors, authController.signUpPost);
 authRouter.post("/refresh", authController.refreshTokenPost);
+authRouter.post("/google", authController.authByGooglePost);

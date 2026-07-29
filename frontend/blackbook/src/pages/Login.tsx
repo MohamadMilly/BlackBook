@@ -14,6 +14,7 @@ import { useMarkFieldsInValid } from "../hooks/utils/useMarkFieldsInvalid";
 import { ErrorsList } from "../components/form/ErrorsList";
 import { FormWrapper } from "../components/form/FormWrapper";
 import { getServerAndValidationErrors } from "../shared/utils/getServerAndValidationError";
+import { GoogleLoginButton } from "../components/form/GoogleLoginButton";
 
 type LogInDataType = {
   username: string;
@@ -42,9 +43,7 @@ export function LoginPage() {
 
   const handleLoginSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    login(logInData, {
-      onSuccess: () => navigate("/app/me"),
-    });
+    login(logInData);
   };
 
   return (
@@ -113,7 +112,12 @@ export function LoginPage() {
           {isPending ? "Submitting" : "Submit"}
         </Button>
       </form>
-
+      <div className="relative border-2 border-neutral-700 my-6 rounded-full">
+        <span className="absolute top-1/2 left-1/2 -translate-y-1/2 bg-neutral-900 inline-block px-2 -translate-x-1/2 text-sm">
+          OR
+        </span>
+      </div>
+      <GoogleLoginButton />
       <p className="mt-8 text-center text-sm text-neutral-400">
         Don't have an account?{" "}
         <Link

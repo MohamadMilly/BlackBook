@@ -7,6 +7,7 @@ export type User = {
   createdAt: Date;
   followers?: User[];
   following?: User[];
+  googleId?: string;
   profile: Profile | null;
 };
 
@@ -43,7 +44,7 @@ export type Post = {
   title?: string | null;
   content: string;
   images: string[];
-  user?: Omit<User, "password">;
+  user?: Omit<User, "password" | "googleId">;
   userId: number;
   createdAt: Date;
   likes: Like[];
@@ -84,6 +85,7 @@ export type SignUpRequestBody = {
   lastname: string;
   username: string;
   password: string;
+  googleId?: string;
   confirmPassword: string;
 };
 

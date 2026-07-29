@@ -14,6 +14,7 @@ model User {
   createdAt DateTime @default(now())
   password  String
   username  String   @unique
+  googleId  String?  @unique
   likes     Like[]
   posts     Post[]
   comments  Comment[]

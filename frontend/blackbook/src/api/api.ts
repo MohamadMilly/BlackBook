@@ -45,7 +45,7 @@ apiClient.interceptors.response.use(
 
         // Save the new token
         localStorage.setItem("accessToken", accessToken);
-        
+
         // Update the failed request authorization header and retry it
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;

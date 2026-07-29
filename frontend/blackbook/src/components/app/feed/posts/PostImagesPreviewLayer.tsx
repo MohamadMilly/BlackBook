@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 
 /* LEARNED THING ! 
 When a button is disabled , the action that is ongoing will be stopped immediately , for that reason i will delay 
-on scroll listener from update the state and disable the button because otherwise it will remove the focus from the button and the
+on scroll listener from updating the state and disable the button because otherwise it will remove the focus from the button and the
 browser will lose context so it will stop the animation
 */
 
