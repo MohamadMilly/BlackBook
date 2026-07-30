@@ -16,7 +16,10 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={client}>
       <AuthProvider>
-        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <GoogleOAuthProvider
+          clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
+          locale="en"
+        >
           <CommentsPanelContextProvider>
             <RouterProvider router={router} />
           </CommentsPanelContextProvider>

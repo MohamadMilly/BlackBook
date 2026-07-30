@@ -6,7 +6,7 @@ import {
   type SubmitEvent,
 } from "react";
 import { Button } from "../components/shared/ui/Button";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { Input } from "../components/shared/ui/Input";
 import { useLogin } from "../hooks/api/auth/useLogin";
 import type { ResponseError } from "@app/types";
@@ -27,11 +27,11 @@ export function LoginPage() {
     password: "",
   });
   const { mutate: login, isPending, error } = useLogin();
-  const navigate = useNavigate();
+
   const errors: ResponseError[] = useMemo(() => {
     return getServerAndValidationErrors(error);
   }, [error]);
-  console.log(errors);
+
   useMarkFieldsInValid(errors);
 
   const handleLogInDataChange = useCallback(
@@ -113,8 +113,8 @@ export function LoginPage() {
         </Button>
       </form>
       <div className="relative border-2 border-neutral-700 my-6 rounded-full">
-        <span className="absolute top-1/2 left-1/2 -translate-y-1/2 bg-neutral-900 inline-block px-2 -translate-x-1/2 text-sm">
-          OR
+        <span className="absolute top-1/2 left-1/2 -translate-y-1/2 bg-neutral-900 inline-block px-2 -translate-x-1/2 text-neutral-400 text-xs">
+          OR CONTINUE WITH
         </span>
       </div>
       <GoogleLoginButton />
