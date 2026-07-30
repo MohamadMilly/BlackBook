@@ -14,12 +14,14 @@ export const createUser = async ({
   password,
   firstname,
   lastname,
+  googleId,
   avatarUrl,
 }: Omit<SignUpRequestBody, "confirmPassword"> & { avatarUrl?: string }) => {
   const user = await prisma.user.create({
     data: {
       firstname,
       lastname,
+      googleId,
       username,
       password: await bcrypt.hash(password, 10),
       profile: {
