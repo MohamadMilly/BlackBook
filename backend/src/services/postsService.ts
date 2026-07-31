@@ -46,6 +46,7 @@ export const createPost = async <T extends Omit<PostCreateArgs, "data">>(
     yesterday.setDate(yesterday.getDate() - 1);
     const existingRecentStory = await prisma.post.findFirst({
       where: {
+        userId: userId,
         createdAt: {
           gt: yesterday,
         },
