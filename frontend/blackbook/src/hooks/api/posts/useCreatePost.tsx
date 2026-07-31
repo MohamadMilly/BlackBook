@@ -3,16 +3,19 @@ import { apiClient } from "../../../api/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import { useAuth } from "../../../contexts/authContext";
+import { useNavigate } from "react-router";
 
 const createPost = async ({
   title,
   content,
   images,
+  type,
 }: CreatePostRequestBody): Promise<{ post: Required<Post> }> => {
   const response = await apiClient.post("/posts", {
     title,
     content,
     images,
+    type,
   });
   return response.data;
 };
@@ -20,6 +23,7 @@ const createPost = async ({
 export function useCreatePost() {
   const queryClient = useQueryClient();
   const { user: currentUser } = useAuth();
+  const navigate = useNavigate();
   return useMutation<
     { post: Required<Post> },
     AxiosError<ResponseError>,
@@ -47,6 +51,18 @@ export function useCreatePost() {
           };
         },
       );
+      queryClient.setQueryData(["users", currentUser?.id], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          recentStoryId: data.post.id,
+        };
+      });
+      if (data.post.type === "FEED") {
+        navigate("/app/feed");
+      } else {
+        navigate("/app/me");
+      }
     },
   });
 }

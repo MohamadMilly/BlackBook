@@ -7,4 +7,7 @@
 *
 * 🟢 You can import this file directly.
 */
-export {};
+export const PostType = {
+    STORY: 'STORY',
+    FEED: 'FEED'
+};

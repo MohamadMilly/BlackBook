@@ -1,16 +1,11 @@
-import {
-  Navigate,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from "react-router";
+import { useNavigate, useParams, useSearchParams } from "react-router";
 import { useAuth } from "../../contexts/authContext";
 import { useUserFollowers } from "../../hooks/api/users/useUserFollowers";
 import { SectionWrapper } from "../../components/app/layout/SectionWrapper";
 import { Input } from "../../components/shared/ui/Input";
 import { useEffect, type ChangeEvent } from "react";
 import { UsersList } from "../../components/app/users/UsersList";
-import { TriggerFetch } from "../../components/shared/utils/TriggerFetch";
+import { VisibilityTrigger } from "../../components/shared/utils/VisibilityTrigger";
 
 export function FollowersPage() {
   const { userId } = useParams();
@@ -72,9 +67,9 @@ export function FollowersPage() {
       <div className="mt-6">
         <UsersList isLoading={isLoading} error={error} users={followers} />
         {hasNextPage && (
-          <TriggerFetch
-            fetchNextPage={fetchNextPage}
-            isFetchingNextPage={isFetchingNextPage}
+          <VisibilityTrigger
+            onVisible={fetchNextPage}
+            isActive={!isFetchingNextPage}
           />
         )}
         {isFetchingNextPage && (

@@ -4,13 +4,14 @@ import { Input } from "../../components/shared/ui/Input";
 import { useSearchParams } from "react-router";
 import { useUsers } from "../../hooks/api/users/useUsers";
 import { UsersList } from "../../components/app/users/UsersList";
-import { TriggerFetch } from "../../components/shared/utils/TriggerFetch";
+import { VisibilityTrigger } from "../../components/shared/utils/VisibilityTrigger";
 import { useDebounce } from "../../hooks/utils/useDebounce";
 import { useFollowRequests } from "../../hooks/api/users/useFollowRequests";
 import type { FollowRequestType } from "@app/types";
 import { RequestsList } from "../../components/app/users/requests/RequestsList";
 import { useFollowRequestsCount } from "../../hooks/api/users/useFollowRequestsCount";
 import { RequestsSectionControls } from "../../components/app/users/requests/RequestsSectionControls";
+
 
 export function UsersPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -114,9 +115,9 @@ export function UsersPage() {
       <div className="mt-6">
         <UsersList isLoading={isLoading} error={error} users={users} />
         {hasNextPage && (
-          <TriggerFetch
-            fetchNextPage={fetchNextPage}
-            isFetchingNextPage={isFetchingNextPage}
+          <VisibilityTrigger
+            onVisible={fetchNextPage}
+            isActive={!isFetchingNextPage}
           />
         )}
         {isFetchingNextPage && (

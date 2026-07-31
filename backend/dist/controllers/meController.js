@@ -1,29 +1,22 @@
 import { getUser, patchProfile } from "../services/usersService.js";
 import { getUserPosts } from "../services/postsService.js";
+import { getPostsQueryOptions } from "../shared/queryOptions.js";
 const getCurrentUserGet = async (req, res, next) => {
     const currentUserId = req.currentUser?.id;
     try {
-        const user = (await getUser(currentUserId, {
-            include: {
-                _count: {
-                    select: {
-                        followers: true,
-                        following: true,
-                    },
-                },
-                profile: true,
-            },
+        const userData = (await getUser(currentUserId, {
+            withProfile: true,
+            withRecentStoryId: true,
+            withFollowCounts: true,
         }));
-        if (!user) {
+        if (!userData) {
             res.status(404).json({
                 message: "User is not found.",
             });
         }
         else {
             res.json({
-                user: user,
-                followersCount: user._count.followers,
-                followingCount: user._count.following,
+                ...userData,
             });
         }
     }
@@ -34,25 +27,9 @@ const getCurrentUserGet = async (req, res, next) => {
 export { getCurrentUserGet };
 export const getCurrentUserPosts = async (req, res, next) => {
     const currentUser = req.currentUser;
+    const { type } = req.query;
     try {
-        const posts = await getUserPosts(currentUser?.id, {
-            include: {
-                user: {
-                    include: {
-                        profile: true,
-                    },
-                },
-                likes: true,
-                _count: {
-                    select: {
-                        comments: true,
-                    },
-                },
-            },
-            orderBy: {
-                createdAt: "desc",
-            },
-        });
+        const posts = await getUserPosts(currentUser?.id, type ?? "FEED", getPostsQueryOptions);
         const postsWithCommentsCounts = posts.map(({ _count, ...post }) => ({
             ...post,
             commentsCount: _count.comments,

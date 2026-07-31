@@ -1,6 +1,5 @@
 import type { Post } from "@app/types";
 import { PostCard } from "./PostCard";
-import { useCommentsPanel } from "../../../../contexts/commentsPanelContext";
 import { PostSkeleton } from "../skeleton/PostSkeleton";
 import { usePostImages } from "../../../../contexts/PostImagesContext";
 
@@ -11,7 +10,6 @@ type PostsListProps = {
 };
 
 export function PostsList({ posts, isLoading, error }: PostsListProps) {
-  const { handlePostIdChange } = useCommentsPanel();
   const { handleImagesUrlsChange } = usePostImages();
   if (isLoading) return <PostSkeleton />;
   if (error) return <p className="text-red-500">Error: {error.message}</p>;
@@ -22,7 +20,6 @@ export function PostsList({ posts, isLoading, error }: PostsListProps) {
           <PostCard
             key={post.id}
             post={post}
-            handlePostIdChange={handlePostIdChange}
             handleImagesUrlsChange={handleImagesUrlsChange}
           />
         ))

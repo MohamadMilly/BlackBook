@@ -105,7 +105,9 @@ export const PostScalarFieldEnum = {
     content: 'content',
     images: 'images',
     userId: 'userId',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    views: 'views',
+    type: 'type'
 };
 export const LikeScalarFieldEnum = {
     id: 'id',

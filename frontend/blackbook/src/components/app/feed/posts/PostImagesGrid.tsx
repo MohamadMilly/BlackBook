@@ -22,7 +22,7 @@ export function PostImagesGrid({
   return (
     <button
       onClick={() => handleImagesUrlsChange(images)}
-      className={`h-100 ${gridLayoutClassName} block w-full cursor-pointer`}
+      className={`h-75 ${gridLayoutClassName} block w-full cursor-pointer`}
     >
       {images.slice(0, 5).map((image, index) => {
         return (

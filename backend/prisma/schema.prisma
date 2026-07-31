@@ -15,7 +15,7 @@ model User {
   password  String
   username  String   @unique
   googleId  String?  @unique
-  likes     Like[]
+  likes     Like[]   
   posts     Post[]
   comments  Comment[]
   followers User[]   @relation("followers-following relation")
@@ -41,19 +41,21 @@ model Post {
   images    String[]
   userId    Int
   createdAt DateTime @default(now())
-  likes     Like[]
+  likes     Like[]   
   user      User     @relation(fields: [userId], references: [id])
-  comments Comment[]
+  comments  Comment[]
+  views     Int      @default(0)
+  type      PostType @default(FEED)
 }
 
 model Like {
   id        Int      @id @default(autoincrement())
-  postId    Int
-  userId    Int
+  postId    Int      
+  userId    Int      
   createdAt DateTime @default(now())
   post      Post     @relation(fields: [postId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
-
+  
   @@unique([userId,postId])
 }
 
@@ -76,4 +78,9 @@ model FollowRequest {
   createdAt  DateTime @default(now())
 
   @@unique([senderId, receiverId])
+}
+
+enum PostType {
+STORY
+FEED
 }

@@ -70,7 +70,11 @@ p {
     animation: slideRight 0.3s 1;
     animation-fill-mode: both;
   }
-
+  .animate-growWidth {
+    animation: growWidth 1;
+    animation-fill-mode: forwards;
+    animation-timing-function: linear;
+  }
   .animate-slideDown {
     animation: slideDown 0.6s 1 forwards;
   }
@@ -105,6 +109,14 @@ p {
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+  @keyframes growWidth {
+    from {
+      width: 0;
+    }
+    to {
+      width: 100%;
     }
   }
 }

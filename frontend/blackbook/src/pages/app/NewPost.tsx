@@ -13,12 +13,14 @@ import { useUpload, type uploadDataType } from "../../hooks/utils/useUpload";
 import { FileUploader } from "../../components/shared/utils/FileUploader";
 import { Upload } from "lucide-react";
 import { UploadedImagesStrip } from "../../components/app/newPost/UploadedImagesStrip";
+import { Checkbox } from "../../components/shared/ui/CheckBox";
 
 export function NewPostPage() {
   const [postData, setPostData] = useState<CreatePostRequestBody>({
     title: "",
     content: "",
     images: [],
+    type: "FEED",
   });
   const navigate = useNavigate();
   const {
@@ -43,11 +45,7 @@ export function NewPostPage() {
   };
   const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    createPost(postData, {
-      onSuccess: () => {
-        navigate("/app/feed");
-      },
-    });
+    createPost(postData);
   };
   const onUploadingImagesSuccess = (results: uploadDataType[]) => {
     const successUploadData = results.filter((result) => result.success);
@@ -70,7 +68,7 @@ export function NewPostPage() {
   };
   return (
     <SectionWrapper title="New Post">
-      <form onSubmit={handleSubmit} method="POST">
+      <form className="px-2" onSubmit={handleSubmit} method="POST">
         <ErrorsList errors={errors} />
         <div className="my-4">
           <label
@@ -135,6 +133,18 @@ export function NewPostPage() {
               <p>Append Images to the post</p>
             )}
           </FileUploader>
+        </div>
+        <div className="my-4">
+          <Checkbox
+            onChange={(e) =>
+              setPostData((prev) => ({
+                ...prev,
+                type: e.target.checked ? "STORY" : "FEED",
+              }))
+            }
+            name="type"
+            label="Post as a story."
+          />
         </div>
         <Button className="mt-6" disabled={isCreatingPostPending} type="submit">
           {isCreatingPostPending ? "Creating..." : "Create"}

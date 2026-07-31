@@ -1,24 +1,24 @@
-import { Navigate, Outlet, useLocation } from "react-router";
+import { Navigate, Outlet, useSearchParams } from "react-router";
 import { SideBar } from "./components/app/layout/SideBar";
 import { Header } from "./components/app/layout/Header";
 import { useAuth } from "./contexts/authContext";
 import { InlinePanel } from "./components/shared/ui/InlinePanel";
-import { useCommentsPanel } from "./contexts/commentsPanelContext";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { CommentsPanelContent } from "./components/app/feed/comments/CommentsPanelContent";
 import { PostImagesContext } from "./contexts/PostImagesContext";
 import { PostImagesPreviewLayer } from "./components/app/feed/posts/PostImagesPreviewLayer";
+import { Story } from "./components/app/story/Story";
 
 function App() {
   const { user } = useAuth();
-  const { postId, handlePostIdChange } = useCommentsPanel();
-  const location = useLocation();
+
   const [previewImagesUrls, setPreviewImagesUrls] = useState<string[]>([]); // if the images are too much you should fetch them independently okay !
 
   // when the pathname location changes close the panel
-  useEffect(() => {
-    handlePostIdChange(null);
-  }, [location.pathname]);
+
+  const [searchParams] = useSearchParams();
+  const currentPostId = Number(searchParams.get("commentsFor"));
+  const currentStoryId = Number(searchParams.get("storyId"));
 
   const handleImagesUrlsChange = useCallback((newImagesUrls: string[]) => {
     setPreviewImagesUrls(newImagesUrls);
@@ -42,11 +42,18 @@ function App() {
         <SideBar />
         <Header />
         <Outlet />
-        <InlinePanel isOpen={!!postId}>
+        <InlinePanel
+          isOpen={!!currentPostId}
+          float={currentStoryId ? true : false}
+        >
           {/* Reset the state by changing keys */}
-          <CommentsPanelContent key={postId ?? 0} postId={postId} />
+          <CommentsPanelContent
+            key={currentPostId ?? 0}
+            postId={currentPostId}
+          />
         </InlinePanel>
         <PostImagesPreviewLayer images={previewImagesUrls} />
+        <Story storyId={currentStoryId} durationSecs={20} />
       </div>
     </PostImagesContext>
   );

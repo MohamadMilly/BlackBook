@@ -6,7 +6,7 @@ export const validateCreatePost = [
     .isString()
     .withMessage("Title must be a text string")
     .trim(),
-  
+
   body("content")
     .trim()
     .notEmpty()
@@ -25,4 +25,10 @@ export const validateCreatePost = [
       }
       return true;
     }),
+  body("type").custom((value: string) => {
+    if (value !== "STORY" && value !== "FEED") {
+      throw new Error("A Post can be either a feed post or a story.");
+    }
+    return true;
+  }),
 ];

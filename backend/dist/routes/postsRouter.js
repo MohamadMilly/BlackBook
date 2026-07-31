@@ -14,3 +14,5 @@ postsRouter.post("/", validateCreatePost, handleValidationErrors, postsControlle
 postsRouter.post("/:postId/likes", likesController.toggleLikePost);
 postsRouter.post("/:postId/comments", commentsController.createCommentPost);
 postsRouter.get("/:postId/comments", commentsController.getPostCommentsGet);
+postsRouter.get("/:postId", postsController.getPostGet);
+postsRouter.post("/:postId/views", postsController.watch);

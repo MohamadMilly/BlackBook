@@ -21,6 +21,7 @@ type ProfileHeaderProps = {
   pendingFollowRequest: FollowRequest | null;
   isFollowed: boolean;
   userId: number;
+  recentStoryId: number | null;
 };
 
 export function ProfileHeader({
@@ -35,6 +36,7 @@ export function ProfileHeader({
   pendingFollowRequest,
   isFollowed,
   userId,
+  recentStoryId,
 }: ProfileHeaderProps): JSX.Element {
   if (isLoading) return <ProfileHeaderSkeleton />;
   const { isUploading, upload } = useUpload();
@@ -62,6 +64,7 @@ export function ProfileHeader({
         <EditableAvatar
           avatarUrl={avatarUrl}
           isCurrentUserProfile={isCurrentUserProfile}
+          recentStoryId={recentStoryId}
         />
 
         <ProfileIdentity

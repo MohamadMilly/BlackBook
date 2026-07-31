@@ -4,19 +4,24 @@ import { FileUploader } from "../../shared/utils/FileUploader";
 import { Avatar } from "./Avatar";
 import { useUpload, type uploadDataType } from "../../../hooks/utils/useUpload";
 import { usePatchProfile } from "../../../hooks/api/me/usePatchProfile";
+import { useSearchParams } from "react-router";
 
 export interface EditableAvatarProps {
   avatarUrl: string | null | undefined;
   isCurrentUserProfile: boolean;
   className?: string;
+  recentStoryId: number | null;
 }
 
 export function EditableAvatar({
   avatarUrl,
   isCurrentUserProfile,
   className = "",
+  recentStoryId,
 }: EditableAvatarProps) {
   const { isUploading, upload } = useUpload();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const { mutate: patchProfile, isPending: isPendingProfilePatch } =
     usePatchProfile();
   const onSuccessUploadAvatar = (results: uploadDataType[]) => {
@@ -30,14 +35,18 @@ export function EditableAvatar({
   };
 
   const showLoadingState = isUploading || isPendingProfilePatch;
-
+  const setStoryQueryParam = () => {
+    setSearchParams((prev) => ({ ...prev, storyId: recentStoryId }));
+  };
   return (
     <div className={`relative rounded-full ${className}`}>
-      <Avatar
-        avatarUrl={avatarUrl}
-        size={130}
-        className="md:w-45! md:h-45! border-4 border-neutral-900"
-      />
+      <button disabled={!recentStoryId} onClick={setStoryQueryParam}>
+        <Avatar
+          avatarUrl={avatarUrl}
+          size={130}
+          className={`md:w-45! md:h-45! border-4 border-neutral-900 ${recentStoryId ? "shadow-[0_0_0_2px_#0a0a0a,0_0_0_5px_#2563eb] cursor-pointer" : ""}`}
+        />
+      </button>
 
       {isCurrentUserProfile && (
         <FileUploader

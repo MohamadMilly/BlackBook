@@ -27,7 +27,7 @@ export function LoginPage() {
     password: "",
   });
   const { mutate: login, isPending, error } = useLogin();
-
+  
   const errors: ResponseError[] = useMemo(() => {
     return getServerAndValidationErrors(error);
   }, [error]);

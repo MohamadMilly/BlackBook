@@ -1,13 +1,14 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma.js";
-import { SignUpRequestBody, User } from "@app/types";
+import { GetUserResponseBody, SignUpRequestBody, User } from "@app/types";
 import {
   ProfileUpdateInput,
-  UserCreateArgs,
   UserFindManyArgs,
   UserFindUniqueArgs,
   UserGetPayload,
+  UserInclude,
 } from "../generated/prisma/models.js";
+import { recentStoryWhereOption } from "../shared/queryOptions.js";
 
 export const createUser = async ({
   username,
@@ -35,19 +36,99 @@ export const createUser = async ({
   return user;
 };
 
-export const getUser = async <T extends UserFindUniqueArgs>(
+type getUserOptions = {
+  currentUserId?: number;
+  withProfile?: boolean;
+  withRecentStoryId?: boolean;
+  withFollowCounts?: boolean;
+};
+
+export const getUser = async (
+  // pattern 1 : building the query
   userId: number,
-  options: Omit<T, "where"> & { where?: Omit<T["where"], "id"> },
-): Promise<UserGetPayload<T>> => {
-  const user = await prisma.user.findUnique({
-    ...options,
+  options: getUserOptions,
+): Promise<Partial<GetUserResponseBody> | void> => {
+  const include = {} as UserInclude;
+
+  if (options.withProfile) {
+    include.profile = true;
+  }
+  if (options.withRecentStoryId) {
+    include.posts = { where: recentStoryWhereOption };
+  }
+  if (options.currentUserId) {
+    include.followers = {
+      where: {
+        id: options.currentUserId,
+      },
+    };
+    include.receivedFollowRequests = {
+      where: {
+        senderId: options.currentUserId,
+      },
+    };
+  }
+  if (options.withFollowCounts) {
+    include._count = {
+      select: {
+        followers: true,
+        following: true,
+      },
+    };
+  }
+
+  const user = (await prisma.user.findUnique({
     where: {
       id: userId,
-      ...(options?.where ? options.where : {}),
     },
-  });
+    select: {
+      id: true,
+      firstname: true,
+      lastname: true,
+      username: true,
+      createdAt: true,
+      profile: true,
+      ...(Object.keys(include).length > 0 ? { ...include } : {}),
+    },
+  })) as any;
+  if (!user) return;
 
-  return user as UserGetPayload<T>;
+  const isFollowed =
+    options.currentUserId &&
+    "followers" in user &&
+    Array.isArray(user.followers)
+      ? user.followers.length === 1
+      : false;
+
+  const pendingFollowRequest =
+    options.currentUserId &&
+    "receivedFollowRequests" in user &&
+    Array.isArray(user.receivedFollowRequests)
+      ? user.receivedFollowRequests[0]
+      : null;
+  const { followers, receivedFollowRequests, posts, _count, ...cleanUser } =
+    user;
+  return {
+    user: cleanUser as Omit<User, "password">,
+    ...(options.currentUserId
+      ? {
+          isFollowed: !!isFollowed,
+          hasPendingFollowRequest: !!pendingFollowRequest,
+          pendingFollowRequest: pendingFollowRequest,
+        }
+      : {}),
+    ...(options.withFollowCounts
+      ? {
+          followersCount: user._count?.followers ?? 0,
+          followingCount: user._count?.following ?? 0,
+        }
+      : {}),
+    ...(options.withRecentStoryId
+      ? {
+          recentStoryId: user.posts?.[0]?.id ?? null,
+        }
+      : {}),
+  };
 };
 
 export const getUsers = async <T extends UserFindManyArgs>(
@@ -59,7 +140,7 @@ export const getUsers = async <T extends UserFindManyArgs>(
   let queryOptions: UserFindManyArgs;
   if (query) {
     const searchTerms = query.trim().split(/\s+/);
-
+    
     queryOptions = {
       where: {
         AND: searchTerms.map((term) => ({
@@ -91,7 +172,7 @@ export const getUsers = async <T extends UserFindManyArgs>(
         }
       : {}),
   });
-
+  
   return users as UserGetPayload<T>[];
 };
 

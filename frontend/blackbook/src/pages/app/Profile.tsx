@@ -25,6 +25,7 @@ export function ProfilePage() {
     hasPendingFollowRequest,
     pendingFollowRequest,
     user,
+    recentStoryId,
     isLoading: isLoadingUser,
     error: userFetchError,
   } = useUser(definedUserId);
@@ -32,7 +33,7 @@ export function ProfilePage() {
     posts,
     isLoading: isLoadingPosts,
     error: postsFetchError,
-  } = useUserPosts(definedUserId);
+  } = useUserPosts(definedUserId, "FEED");
 
   const fullname = user ? `${user.firstname} ${user.lastname}` : "";
   const profile = user?.profile;
@@ -71,8 +72,9 @@ export function ProfilePage() {
             hasPendingFollowRequest={hasPendingFollowRequest}
             userId={definedUserId}
             pendingFollowRequest={pendingFollowRequest}
+            recentStoryId={recentStoryId}
           />
-          
+
           <ProfileIdentity
             isLoading={isLoadingUser}
             className="mt-14 flex flex-col items-center gap-1 md:hidden"

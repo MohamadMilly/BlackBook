@@ -39,6 +39,8 @@ export type UserFollowDataType = {
   isFollowed: boolean;
 };
 
+export type PostType = "STORY" | "FEED";
+
 export type Post = {
   id: number;
   title?: string | null;
@@ -49,6 +51,8 @@ export type Post = {
   createdAt: Date;
   likes: Like[];
   commentsCount?: number;
+  views: number;
+  type: PostType;
 };
 
 export type Like = {
@@ -107,7 +111,7 @@ export type ResponseError = {
 };
 
 export interface CreatePostRequestBody
-  extends Pick<Post, "images" | "content" | "title"> {}
+  extends Pick<Post, "images" | "content" | "title" | "type"> {}
 
 export type ToggleLikeResponseBody = {
   operation: "create" | "delete";
@@ -118,12 +122,14 @@ export type GetUserResponseBody = {
   user: Omit<User, "password">;
   followingCount: number;
   followersCount: number;
+  recentStoryId: number;
 } & Required<UserFollowDataType>;
 
 export type CurrentUserData = {
   user: Omit<User, "password">;
   followingCount: number;
   followersCount: number;
+  recentStoryId: number;
 };
 
 export type FollowRequestType = "received" | "sent";

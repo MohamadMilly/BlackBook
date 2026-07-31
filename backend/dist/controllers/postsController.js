@@ -1,5 +1,6 @@
-import { createPost, getPosts } from "../services/postsService.js";
+import { createPost, getPost, getPosts, watchPost, } from "../services/postsService.js";
 import { matchedData } from "express-validator";
+import { getPostsQueryOptions } from "../shared/queryOptions.js";
 export const getPostsGet = async (req, res, next) => {
     const currentUser = req.currentUser; // for giving the posts of followings
     try {
@@ -19,24 +20,9 @@ export const getPostsGet = async (req, res, next) => {
                         userId: currentUser?.id,
                     },
                 ],
+                type: "FEED",
             },
-            include: {
-                user: {
-                    include: {
-                        profile: true,
-                    },
-                },
-                likes: true /* here we can only get the user like and return hasLiked instead of getting all likes and check in frontend
-              / but it is okay if likes are not so much */,
-                _count: {
-                    select: {
-                        comments: true,
-                    },
-                },
-            },
-            orderBy: {
-                createdAt: "desc",
-            },
+            ...getPostsQueryOptions,
         });
         const postsWithCommentsCounts = posts.map(({ _count, ...post }) => ({
             ...post,
@@ -50,9 +36,9 @@ export const getPostsGet = async (req, res, next) => {
 };
 export const create = async (req, res, next) => {
     const currentUserId = req.currentUser?.id;
-    const { title, content, images } = matchedData(req);
+    const { title, content, images, type } = matchedData(req);
     try {
-        const post = await createPost({ title, content, images }, currentUserId, {
+        const post = await createPost({ title, content, images, type }, currentUserId, {
             include: {
                 user: {
                     select: {
@@ -68,6 +54,51 @@ export const create = async (req, res, next) => {
             },
         });
         res.json({ post: { ...post, commentsCount: 0 } });
+    }
+    catch (err) {
+        next(err);
+    }
+};
+export const getPostGet = async (req, res, next) => {
+    const { postId } = req.params;
+    try {
+        let post = await getPost(JSON.parse(postId), {
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        firstname: true,
+                        lastname: true,
+                        username: true,
+                        createdAt: true,
+                        profile: true,
+                    },
+                },
+                likes: true, // this is only if the likes are not very much
+                _count: {
+                    select: {
+                        comments: true,
+                    },
+                },
+            },
+        });
+        const { _count, ...postWithCommentCount } = {
+            ...post,
+            commentsCount: post._count.comments,
+        };
+        res.json({ post: postWithCommentCount });
+    }
+    catch (err) {
+        next(err);
+    }
+};
+export const watch = async (req, res, next) => {
+    const { postId } = req.params;
+    try {
+        const hasBeenWatched = await watchPost(JSON.parse(postId));
+        return res.json({
+            hasBeenWatched: hasBeenWatched,
+        });
     }
     catch (err) {
         next(err);

@@ -15,19 +15,21 @@ export function PostImagesPreviewLayer({
   images: string[];
 }): JSX.Element | null {
   if (images.length === 0) return null;
-
+  
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const { handleImagesUrlsChange } = usePostImages();
   const isScrollingRef = useRef<boolean>(null);
+
+
   const handleScroll = () => {
     if (!containerRef.current || isScrollingRef.current) return;
     const { scrollTop, clientHeight } = containerRef.current;
-
+     
     const index = Math.round(scrollTop / clientHeight);
     setActiveIndex(index);
   };
-
+   
   const scrollToImage = (index: number) => {
     if (!containerRef.current) return;
     const clientHeight = containerRef.current.clientHeight;

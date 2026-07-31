@@ -22,4 +22,10 @@ export const validateCreatePost = [
         }
         return true;
     }),
+    body("type").custom((value) => {
+        if (value !== "STORY" && value !== "FEED") {
+            throw new Error("A Post can be either a feed post or a story.");
+        }
+        return true;
+    }),
 ];

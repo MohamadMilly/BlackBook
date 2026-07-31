@@ -5,10 +5,12 @@ import {
   FollowRequest,
   GetUserResponseBody,
   Post,
+  PostType,
   User,
   UserFollowDataType,
 } from "@app/types";
 import { AuthenticatedRequest } from "../types/index.js";
+import { getPostsQueryOptions } from "../shared/queryOptions.js";
 
 export const getUserGet = async (
   req: AuthenticatedRequest<{ userId: string }>,
@@ -17,51 +19,23 @@ export const getUserGet = async (
 ) => {
   const currentUserId = req.currentUser?.id as number;
   const { userId } = req.params;
+
   try {
-    const { followers, receivedFollowRequests, ...user } = (await getUser(
-      JSON.parse(userId),
-      {
-        include: {
-          _count: {
-            select: {
-              followers: true,
-              following: true,
-            },
-          },
-          followers: {
-            where: {
-              id: currentUserId,
-            },
-          },
-          receivedFollowRequests: {
-            where: {
-              senderId: currentUserId,
-            },
-          },
-          profile: true,
-        },
-      },
-    )) as User & {
-      _count: {
-        followers: number;
-        following: number;
-      };
-      receivedFollowRequests: FollowRequest[];
-      followers: Omit<User, "password">;
-    };
-    if (!user) {
+    const userData = (await getUser(JSON.parse(userId), {
+      withFollowCounts: true,
+      currentUserId: currentUserId as number,
+      withRecentStoryId: true,
+      withProfile: true,
+    })) as GetUserResponseBody;
+
+    if (!userData) {
       res.status(404).json({
         message: "User is not found.",
       });
     }
 
     res.json({
-      followingCount: user._count.following,
-      isFollowed: followers.length === 1,
-      pendingFollowRequest: receivedFollowRequests[0],
-      hasPendingFollowRequest: receivedFollowRequests.length === 1,
-      followersCount: user._count.followers,
-      user: user,
+      ...userData,
     });
   } catch (err) {
     next(err);
@@ -69,35 +43,18 @@ export const getUserGet = async (
 };
 
 export const getUserPostsGet = async (
-  req: Request<{ userId: string }>,
+  req: Request<{ userId: string }, unknown, {}, { type: PostType | undefined }>,
   res: Response<{ posts: Required<Post[]> }>,
   next: NextFunction,
 ) => {
   const { userId } = req.params;
+  const { type } = req.query;
   try {
-    const posts = await getUserPosts(JSON.parse(userId), {
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstname: true,
-            lastname: true,
-            username: true,
-            createdAt: true,
-            profile: true,
-          },
-        },
-        likes: true,
-        _count: {
-          select: {
-            comments: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const posts = await getUserPosts(
+      JSON.parse(userId),
+      type ?? "FEED",
+      getPostsQueryOptions, // pattern b: isolate the queryOptions object and reuse it
+    );
     const postsWithCommentsCounts = posts.map(({ _count, ...post }) => {
       return { ...post, commentsCount: _count.comments };
     });

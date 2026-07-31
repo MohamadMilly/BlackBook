@@ -5,7 +5,6 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import { routes } from "./routes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./providers/AuthProvider";
-import { CommentsPanelContextProvider } from "./providers/CommentsPanelContextProvider";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const router = createBrowserRouter(routes);
@@ -20,9 +19,7 @@ createRoot(document.getElementById("root")!).render(
           clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
           locale="en"
         >
-          <CommentsPanelContextProvider>
-            <RouterProvider router={router} />
-          </CommentsPanelContextProvider>
+          <RouterProvider router={router} />
         </GoogleOAuthProvider>
       </AuthProvider>
     </QueryClientProvider>

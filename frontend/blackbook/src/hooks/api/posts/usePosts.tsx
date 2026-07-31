@@ -4,7 +4,7 @@ import type { Post } from "@app/types";
 
 const getPosts = async (): Promise<{ posts: Required<Post>[] }> => {
   const response = await apiClient.get("/posts");
-
+  
   return response.data;
 };
 
@@ -13,6 +13,7 @@ export function usePosts() {
     queryKey: ["posts"],
     queryFn: getPosts,
     staleTime: 1000 * 60 * 2,
+   
   });
   const posts = data?.posts ?? [];
 
