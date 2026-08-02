@@ -1,4 +1,4 @@
-import type { Response, Request, NextFunction } from "express";
+import type { Response, NextFunction } from "express";
 import { AuthenticatedRequest } from "../types/index.js";
 import {
   createPost,
@@ -6,42 +6,26 @@ import {
   getPosts,
   watchPost,
 } from "../services/postsService.js";
-import { CreatePostRequestBody, Post } from "@app/types";
+import {
+  CreatePostRequestBody,
+  CreatePostResponseBody,
+  GetPostResponseBody,
+  GetPostsResponseBody,
+  Post,
+} from "@app/types";
 import { matchedData } from "express-validator";
-import { getPostsQueryOptions } from "../shared/queryOptions.js";
+import { postPresenters } from "../presenters/post.presenter.js";
 
 export const getPostsGet = async (
   req: AuthenticatedRequest,
-  res: Response<{ posts: Required<Post[]> }>,
+  res: Response<GetPostsResponseBody>,
   next: NextFunction,
 ) => {
-  const currentUser = req.currentUser; // for giving the posts of followings
+  const currentUser = req.currentUser;
   try {
-    const posts = await getPosts({
-      where: {
-        OR: [
-          {
-            user: {
-              followers: {
-                some: {
-                  id: currentUser?.id,
-                },
-              },
-            },
-          },
-          {
-            userId: currentUser?.id,
-          },
-        ],
-        type: "FEED",
-      },
-      ...getPostsQueryOptions,
-    });
-    const postsWithCommentsCounts = posts.map(({ _count, ...post }) => ({
-      ...post,
-      commentsCount: _count.comments,
-    }));
-    res.json({ posts: postsWithCommentsCounts });
+    const posts = await getPosts(currentUser?.id as number);
+    const formattedPosts = postPresenters.presentPostsList(posts);
+    res.json({ posts: formattedPosts });
   } catch (err) {
     next(err);
   }
@@ -49,69 +33,46 @@ export const getPostsGet = async (
 
 export const create = async (
   req: AuthenticatedRequest<{}, unknown, CreatePostRequestBody>,
-  res: Response<{ post: Required<Post> }>,
+  res: Response<CreatePostResponseBody>,
   next: NextFunction,
 ) => {
-  const currentUserId = req.currentUser?.id;
+  const currentUserId = req.currentUser?.id as number;
   const { title, content, images, type } = matchedData(req);
   try {
-    const post = await createPost(
-      { title, content, images, type },
-      currentUserId as number,
-      {
-        include: {
-          user: {
-            select: {
-              id: true,
-              firstname: true,
-              lastname: true,
-              username: true,
-              createdAt: true,
-              profile: true,
-            },
-          },
-          likes: true,
-        },
-      },
-    );
-    res.json({ post: { ...post, commentsCount: 0 } });
+    const post = await createPost({
+      title,
+      content,
+      images,
+      type,
+      userId: currentUserId,
+    });
+    const initialPostType: Required<Post> = {
+      ...post,
+      commentsCount: 0,
+      isLiked: false,
+      likesCount: 0,
+    };
+    res.json({ post: initialPostType });
   } catch (err) {
     next(err);
   }
 };
 
 export const getPostGet = async (
-  req: Request<{ postId: string }>,
-  res: Response<{ post: Required<Post> }>,
+  req: AuthenticatedRequest<{ postId: string }>,
+  res: Response<GetPostResponseBody | { message: string }>,
   next: NextFunction,
 ) => {
   const { postId } = req.params;
+  const numUserId = Number(postId);
+  const currentUserId = req.currentUser?.id as number;
   try {
-    let post = await getPost(JSON.parse(postId), {
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstname: true,
-            lastname: true,
-            username: true,
-            createdAt: true,
-            profile: true,
-          },
-        },
-        likes: true, // this is only if the likes are not very much
-        _count: {
-          select: {
-            comments: true,
-          },
-        },
-      },
-    });
-    const { _count, ...postWithCommentCount } = {
-      ...post,
-      commentsCount: post._count.comments,
-    };
-    res.json({ post: postWithCommentCount });
+    const post = await getPost(numUserId, currentUserId);
+    if (!post) {
+      res.json({ message: "Post is not found." });
+      return;
+    }
+    res.json({ post: postPresenters.presentPost(post) });
   } catch (err) {
     next(err);
   }
@@ -123,8 +84,9 @@ export const watch = async (
   next: NextFunction,
 ) => {
   const { postId } = req.params;
+  const numUserId = Number(postId);
   try {
-    const hasBeenWatched = await watchPost(JSON.parse(postId));
+    const hasBeenWatched = await watchPost(numUserId);
     return res.json({
       hasBeenWatched: hasBeenWatched,
     });

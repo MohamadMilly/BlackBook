@@ -69,7 +69,6 @@ export function ProfilePage() {
             isLoading={isLoadingUser}
             name={fullname}
             isFollowed={isFollowed}
-            hasPendingFollowRequest={hasPendingFollowRequest}
             userId={definedUserId}
             pendingFollowRequest={pendingFollowRequest}
             recentStoryId={recentStoryId}
@@ -83,7 +82,6 @@ export function ProfilePage() {
             followingCount={followingCount}
             isCurrentUserProfile={isCurrentUserProfile}
             isFollowed={isFollowed}
-            hasPendingFollowRequest={hasPendingFollowRequest}
             userId={definedUserId}
             pendingFollowRequest={pendingFollowRequest}
           />

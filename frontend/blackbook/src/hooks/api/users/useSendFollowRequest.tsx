@@ -17,34 +17,11 @@ const sendFollowRequest = async ({
 
 export function useSendFollowRequest() {
   const queryClient = useQueryClient();
-  const rootQueryKey = ["users"];
 
   return useMutation({
     mutationKey: ["send_follow_request"],
     mutationFn: sendFollowRequest,
-    onMutate: async ({ receiverId }) => {
-      await queryClient.cancelQueries({ queryKey: rootQueryKey });
 
-      const previousUsersQueriesData = queryClient.getQueriesData({
-        // notice the plural (queries)
-        queryKey: rootQueryKey,
-      });
-
-      updateUserFollowStatus({
-        queryClient,
-        userId: receiverId,
-        data: { hasPendingFollowRequest: true },
-      });
-
-      return { previousUsersQueriesData };
-    },
-    onError: (err, args, context) => {
-      if (context?.previousUsersQueriesData) {
-        context.previousUsersQueriesData.forEach(([queryKey, oldData]) => {
-          queryClient.setQueryData(queryKey, oldData);
-        });
-      }
-    },
     onSuccess: (data, args) => {
       queryClient.setQueryData(
         ["follow_requests", "sent"],
@@ -56,9 +33,22 @@ export function useSendFollowRequest() {
           };
         },
       );
-    },
-    onSettled: (data, error, args) => {
-      queryClient.invalidateQueries({ queryKey: rootQueryKey });
+      queryClient.setQueryData(
+        ["follow_requests", "count", "sent"],
+        (old: { count: number }) => {
+          if (!old?.count) return;
+
+          return {
+            ...old,
+            count: old.count + 1,
+          };
+        },
+      );
+      updateUserFollowStatus({
+        queryClient,
+        userId: args.receiverId,
+        data: { pendingFollowRequest: data.request },
+      });
     },
   });
 }

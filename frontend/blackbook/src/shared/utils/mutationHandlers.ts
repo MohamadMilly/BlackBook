@@ -1,8 +1,9 @@
-import type { User, UserFollowDataType } from "@app/types";
-import type { UsersPage } from "../../hooks/api/users/useUsers";
-import type { QueryClient } from "@tanstack/react-query";
-import type { FollowersPage } from "../../hooks/api/users/useUserFollowers";
-import type { FollowingsPage } from "../../hooks/api/users/useUserFollowings";
+import type {
+  FollowRequest,
+  GetUserResponseBody,
+  GetUsersResponseBody,
+} from "@app/types";
+import { QueryClient, type InfiniteData } from "@tanstack/react-query";
 
 export function updateUserFollowStatus({
   queryClient,
@@ -11,52 +12,58 @@ export function updateUserFollowStatus({
 }: {
   queryClient: QueryClient;
   userId: number;
-  data: Partial<UserFollowDataType>;
+  data: { pendingFollowRequest?: FollowRequest | null; isFollowed?: boolean };
 }) {
-  queryClient.setQueriesData({ queryKey: ["users"] }, (old: any) => {
-    if (!old) return old;
+  queryClient.setQueriesData<any>(
+    { queryKey: ["users"] },
+    (
+      old:
+        | InfiniteData<GetUsersResponseBody>
+        | { user: GetUserResponseBody["user"] },
+    ) => {
+      if (!old) return old;
 
-    if ("pages" in old && Array.isArray(old.pages)) {
-      const { pendingFollowRequest, ...usersListData } = data;
-      return {
-        ...old,
-        pages: old.pages.map(
-          (page: UsersPage | FollowersPage | FollowingsPage) => {
-            if ("users" in page) {
+      if ("pages" in old && Array.isArray(old.pages)) {
+        return {
+          ...old,
+          pages: old.pages.map((page: any) => {
+            if ("users" in page && Array.isArray(page.users)) {
               return {
                 ...page,
-                users: page["users"].map(
-                  (user: Omit<User, "password"> & UserFollowDataType) =>
-                    user.id === userId ? { ...user, ...usersListData } : user,
+                users: page.users.map((item: GetUserResponseBody) =>
+                  item.user.id === userId ? { ...item, ...data } : item,
                 ),
               };
-            } else if ("followers" in page) {
+            }
+            if ("followers" in page && Array.isArray(page.followers)) {
               return {
                 ...page,
-                followers: page["followers"].map(
-                  (user: Omit<User, "password"> & UserFollowDataType) =>
-                    user.id === userId ? { ...user, ...usersListData } : user,
+                followers: page.followers.map((item: GetUserResponseBody) =>
+                  item.user.id === userId ? { ...item, ...data } : item,
                 ),
               };
-            } else if ("followings" in page) {
+            }
+            if ("followings" in page && Array.isArray(page.followings)) {
               return {
                 ...page,
-                followings: page["followings"].map(
-                  (user: Omit<User, "password"> & UserFollowDataType) =>
-                    user.id === userId ? { ...user, ...usersListData } : user,
+                followings: page.followings.map((item: GetUserResponseBody) =>
+                  item.user.id === userId ? { ...item, ...data } : item,
                 ),
               };
-            } else return page;
-          },
-        ),
-      };
-    }
-    if ("user" in old && old.user && old.user.id === userId) {
-      return {
-        ...old,
-        ...data,
-      };
-    }
-    return old;
-  });
+            }
+            return page;
+          }),
+        };
+      }
+
+      if ("user" in old && old.user && old.user.id === userId) {
+        return {
+          ...old,
+          ...data,
+        };
+      }
+
+      return old;
+    },
+  );
 }

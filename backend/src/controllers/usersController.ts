@@ -2,15 +2,17 @@ import type { Request, Response, NextFunction } from "express";
 import { getUser, getUsers } from "../services/usersService.js";
 import { getUserPosts } from "../services/postsService.js";
 import {
-  FollowRequest,
+  GetFollowersResponseBody,
+  GetFollowingsResponseBody,
+  GetPostsResponseBody,
   GetUserResponseBody,
+  GetUsersResponseBody,
   Post,
   PostType,
-  User,
-  UserFollowDataType,
 } from "@app/types";
 import { AuthenticatedRequest } from "../types/index.js";
-import { getPostsQueryOptions } from "../shared/queryOptions.js";
+import { userPresenters } from "../presenters/user.presenters.js";
+import { postPresenters } from "../presenters/post.presenter.js";
 
 export const getUserGet = async (
   req: AuthenticatedRequest<{ userId: string }>,
@@ -19,46 +21,41 @@ export const getUserGet = async (
 ) => {
   const currentUserId = req.currentUser?.id as number;
   const { userId } = req.params;
-
+  const numUserId = Number(userId);
   try {
-    const userData = (await getUser(JSON.parse(userId), {
-      withFollowCounts: true,
-      currentUserId: currentUserId as number,
-      withRecentStoryId: true,
-      withProfile: true,
-    })) as GetUserResponseBody;
+    const userData = await getUser(numUserId, currentUserId);
 
     if (!userData) {
       res.status(404).json({
         message: "User is not found.",
       });
+      return;
     }
-
-    res.json({
-      ...userData,
-    });
+    const formattedUser = userPresenters.presentUser(userData);
+    res.json(formattedUser);
   } catch (err) {
     next(err);
   }
 };
 
 export const getUserPostsGet = async (
-  req: Request<{ userId: string }, unknown, {}, { type: PostType | undefined }>,
-  res: Response<{ posts: Required<Post[]> }>,
+  req: AuthenticatedRequest<
+    { userId: string },
+    unknown,
+    {},
+    { type: PostType | undefined }
+  >,
+  res: Response<GetPostsResponseBody>,
   next: NextFunction,
 ) => {
   const { userId } = req.params;
+  const numUserId = Number(userId);
+  const currentUserId = req.currentUser?.id as number;
   const { type } = req.query;
   try {
-    const posts = await getUserPosts(
-      JSON.parse(userId),
-      type ?? "FEED",
-      getPostsQueryOptions, // pattern b: isolate the queryOptions object and reuse it
-    );
-    const postsWithCommentsCounts = posts.map(({ _count, ...post }) => {
-      return { ...post, commentsCount: _count.comments };
-    });
-    res.json({ posts: postsWithCommentsCounts });
+    const posts = await getUserPosts(numUserId, type ?? "FEED", currentUserId);
+    const formattedUserPosts = postPresenters.presentPostsList(posts);
+    res.json({ posts: formattedUserPosts });
   } catch (err) {
     next(err);
   }
@@ -71,61 +68,26 @@ export const getUsersGet = async (
     {},
     { search: string | undefined; cursor: string | undefined }
   >,
-  res: Response<{
-    users: (Omit<User, "password"> & UserFollowDataType)[];
-    nextCursor: number | undefined;
-  }>,
+  res: Response<GetUsersResponseBody>,
   next: NextFunction,
 ) => {
   const { search, cursor } = req.query;
-  const numCursor = cursor ? JSON.parse(cursor) : undefined;
-  const currentUserId = req.currentUser?.id;
-  const excludeCurrentUserOptions = currentUserId
-    ? {
-        where: {
-          NOT: {
-            id: currentUserId as number,
-          },
-        },
-      }
-    : {};
+  const numCursor = cursor ? Number(cursor) : undefined;
+  const currentUserId = req.currentUser?.id as number;
+
   const limit = 30;
   try {
-    const users = await getUsers(search, numCursor, limit, {
-      ...excludeCurrentUserOptions,
-      select: {
-        id: true,
-        firstname: true,
-        lastname: true,
-        username: true,
-        createdAt: true,
-
-        followers: {
-          where: {
-            id: currentUserId,
-          },
-        },
-        receivedFollowRequests: {
-          where: {
-            senderId: currentUserId,
-          },
-        },
-        profile: true,
+    const users = await getUsers(search, numCursor, limit, currentUserId, {
+      NOT: {
+        id: currentUserId,
       },
     });
 
-    const usersWithFollowData = users.map((user) => ({
-      id: user.id,
-      firstname: user.firstname,
-      lastname: user.lastname,
-      username: user.username,
-      createdAt: user.createdAt,
-      isFollowed: user.followers.length === 1,
-      profile: user.profile,
-      hasPendingFollowRequest: user.receivedFollowRequests.length === 1,
-    }));
+    const formattedUsers = userPresenters.presentUsersList(users);
+
     const nextCursor = users[limit - 1] ? users[limit - 1].id : undefined;
-    res.json({ users: usersWithFollowData, nextCursor });
+
+    res.json({ users: formattedUsers, nextCursor });
   } catch (err) {
     next(err);
   }
@@ -138,55 +100,36 @@ export const getUserFollowersGet = async (
     {},
     { search: string | undefined; cursor: string | undefined }
   >,
-  res: Response,
+  res: Response<GetFollowersResponseBody>,
   next: NextFunction,
 ) => {
   const { userId } = req.params;
   const currentUserId = req.currentUser?.id as number;
   const limit = 30;
   const { search, cursor } = req.query;
-  const numCursor = cursor ? JSON.parse(cursor) : undefined;
+  const numCursor = cursor ? Number(cursor) : undefined;
   try {
-    const userFollowers = await getUsers(search, numCursor, limit, {
-      where: {
+    const userFollowers = await getUsers(
+      search,
+      numCursor,
+      limit,
+      currentUserId,
+      {
         following: {
           some: {
             id: JSON.parse(userId),
           },
         },
       },
-      include: {
-        followers: {
-          where: {
-            id: currentUserId,
-          },
-        },
-        receivedFollowRequests: {
-          where: {
-            senderId: currentUserId,
-          },
-        },
-        profile: true,
-      },
-    });
+    );
 
-    const userFollowersWithFollowData = userFollowers.map((user) => ({
-      id: user.id,
-      firstname: user.firstname,
-      lastname: user.lastname,
-      username: user.username,
-      createdAt: user.createdAt,
-      isFollowed: user.followers.length === 1,
-      profile: user.profile,
-      hasPendingFollowRequest: user.receivedFollowRequests.length === 1,
-    }));
-    const nextCursor =
-      userFollowers.length === limit
-        ? userFollowers[userFollowers.length - 1].id
-        : undefined;
-
+    const nextCursor = userFollowers[limit - 1]
+      ? userFollowers[limit - 1].id
+      : undefined;
+    const formattedUserFollowers =
+      userPresenters.presentUsersList(userFollowers);
     res.json({
-      followers: userFollowersWithFollowData,
+      followers: formattedUserFollowers,
       nextCursor,
     });
   } catch (err) {
@@ -201,55 +144,38 @@ export const getUserFollowingsGet = async (
     {},
     { search: string | undefined; cursor: string | undefined }
   >,
-  res: Response,
+  res: Response<GetFollowingsResponseBody>,
   next: NextFunction,
 ) => {
   const { userId } = req.params;
+  const numUserId = Number(userId);
   const currentUserId = req.currentUser?.id as number;
   const limit = 30;
   const { search, cursor } = req.query;
-  const numCursor = cursor ? JSON.parse(cursor) : undefined;
+  const numCursor = cursor ? Number(currentUserId) : undefined;
   try {
-    const userFollowings = await getUsers(search, numCursor, limit, {
-      where: {
+    const userFollowings = await getUsers(
+      search,
+      numCursor,
+      limit,
+      currentUserId,
+      {
         followers: {
           some: {
-            id: JSON.parse(userId),
+            id: numUserId,
           },
         },
       },
-      include: {
-        followers: {
-          where: {
-            id: currentUserId,
-          },
-        },
-        receivedFollowRequests: {
-          where: {
-            senderId: currentUserId,
-          },
-        },
-        profile: true,
-      },
-    });
+    );
+    const formattedUserFollowings =
+      userPresenters.presentUsersList(userFollowings);
 
-    const userFollowingsWithFollowData = userFollowings.map((user) => ({
-      id: user.id,
-      firstname: user.firstname,
-      lastname: user.lastname,
-      username: user.username,
-      createdAt: user.createdAt,
-      isFollowed: user.followers.length === 1,
-      profile: user.profile,
-      hasPendingFollowRequest: user.receivedFollowRequests.length === 1,
-    }));
-    const nextCursor =
-      userFollowings.length === limit
-        ? userFollowings[userFollowings.length - 1].id
-        : undefined;
+    const nextCursor = userFollowings[limit - 1]
+      ? userFollowings[limit - 1].id
+      : undefined;
 
     res.json({
-      followings: userFollowingsWithFollowData,
+      followings: formattedUserFollowings,
       nextCursor,
     });
   } catch (err) {

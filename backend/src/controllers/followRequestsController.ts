@@ -10,6 +10,7 @@ import {
 } from "../services/followRequestsService.js";
 import { FollowRequest, FollowRequestType } from "@app/types";
 import { HttpError } from "../shared/errors/HttpError.js";
+import { followRequestPresenters } from "../presenters/followRequest.presenter.js";
 
 export const createFollowRequestPost = async (
   req: AuthenticatedRequest<{}, unknown, { receiverId: number }>,
@@ -24,17 +25,8 @@ export const createFollowRequestPost = async (
   const request = await createFollowRequest(
     currentUser?.id as number,
     receiverId,
-    {
-      include: {
-        receiver: {
-          include: {
-            profile: true,
-          },
-        },
-      },
-    },
   );
-  res.json({ request });
+  res.json({ request: followRequestPresenters.presentFollowRequest(request as any) });
   try {
   } catch (err) {
     next(err);
@@ -56,7 +48,7 @@ export const getFollowRequestsGet = async (
   try {
     const requests = await getFollowRequests(currentUserId as number, type);
     res.json({
-      requests,
+      requests: followRequestPresenters.presentFollowRequestsList(requests as any),
     });
   } catch (err) {
     next(err);

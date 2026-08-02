@@ -17,7 +17,6 @@ type ProfileHeaderProps = {
   followersCount: number;
   followingCount: number;
   isCurrentUserProfile: boolean;
-  hasPendingFollowRequest: boolean;
   pendingFollowRequest: FollowRequest | null;
   isFollowed: boolean;
   userId: number;
@@ -32,7 +31,6 @@ export function ProfileHeader({
   followersCount,
   followingCount,
   isCurrentUserProfile,
-  hasPendingFollowRequest,
   pendingFollowRequest,
   isFollowed,
   userId,
@@ -74,7 +72,6 @@ export function ProfileHeader({
           name={name}
           followingCount={followingCount}
           isCurrentUserProfile={isCurrentUserProfile}
-          hasPendingFollowRequest={hasPendingFollowRequest}
           isFollowed={isFollowed}
           userId={userId}
           pendingFollowRequest={pendingFollowRequest}

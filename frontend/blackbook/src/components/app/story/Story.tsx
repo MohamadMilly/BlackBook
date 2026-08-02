@@ -81,10 +81,8 @@ export function Story({ storyId, durationSecs }: StoryProps) {
   const storyImages = post?.images ?? [];
   const storyAuthor = post?.user;
   const { content, title, commentsCount, views } = post;
-  const likesCount = post.likes.length;
-  const isCurrentUserLiking = post.likes.some(
-    (like) => like.userId === currentUser?.id,
-  );
+  const likesCount = post.likesCount;
+  const isCurrentUserLiking = post.isLiked;
   return (
     <StoryWrapperLayer>
       <div className="fixed inset-0 z-500 flex items-center justify-center bg-black/80 p-0 sm:p-4 backdrop-blur-sm">

@@ -65,7 +65,7 @@ export function FollowingsPage() {
         </div>
       </form>
       <div className="mt-6">
-        <UsersList isLoading={isLoading} error={error} users={followings} />
+        <UsersList isLoading={isLoading} error={error} items={followings} />
         {hasNextPage && (
           <VisibilityTrigger
             onVisible={fetchNextPage}

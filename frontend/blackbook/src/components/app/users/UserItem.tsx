@@ -1,4 +1,4 @@
-import type { User, UserFollowDataType } from "@app/types";
+import type { GetUserResponseBody, User } from "@app/types";
 import { Avatar } from "../profile/Avatar";
 import { formatDate } from "../../../shared/utils/formatDate";
 import { Button } from "../../shared/ui/Button";
@@ -8,19 +8,17 @@ import { useCallback } from "react";
 import { Link } from "react-router";
 import { useAuth } from "../../../contexts/authContext";
 
-export function UserItem({
-  user,
-}: {
-  user: Omit<User, "password"> & UserFollowDataType;
-}) {
+export function UserItem({ item }: { item: GetUserResponseBody }) {
+  const profileUser = item.user;
   const { user: currentUser } = useAuth();
-  const fullname = user.firstname + " " + user.lastname;
-  const formattedJoinedAtDate = formatDate(user.createdAt);
-  const isCurrentUserFollowing = user.isFollowed;
-  const hasPendingFollowRequestByMe = user.hasPendingFollowRequest;
-  const profile = user.profile;
+  const fullname = profileUser.firstname + " " + profileUser.lastname;
+  const formattedJoinedAtDate = formatDate(profileUser.createdAt);
+  const isCurrentUserFollowing = item.isFollowed;
+  const hasPendingFollowRequestByMe = item.pendingFollowRequest;
+  const profile = profileUser.profile;
   const avatarUrl = profile?.avatarUrl;
   const bannerUrl = profile?.bannerUrl;
+
   const {
     mutate: sendFollowRequest,
     isPending: isSendingRequestPending,
@@ -28,7 +26,7 @@ export function UserItem({
   } = useSendFollowRequest();
 
   const handleSendFollowRequest = useCallback(() => {
-    sendFollowRequest({ receiverId: user.id });
+    sendFollowRequest({ receiverId: profileUser.id });
   }, []);
 
   return (
@@ -42,7 +40,10 @@ export function UserItem({
         <Avatar className="shrink-0" size={45} avatarUrl={avatarUrl} />
         <div className="grow flex flex-col justify-start blend-element">
           <p className="font-bold tracking-tight">
-            <Link to={`/app/users/${user.id}`} className="hover:underline">
+            <Link
+              to={`/app/users/${profileUser.id}`}
+              className="hover:underline"
+            >
               {fullname}
             </Link>
           </p>
@@ -51,7 +52,7 @@ export function UserItem({
           </span>
         </div>
       </div>
-      {currentUser?.id !== user.id &&
+      {currentUser?.id !== profileUser.id &&
         (isCurrentUserFollowing ? (
           <p className="flex items-center gap-1">
             <Check size={18} className="text-blue-600" />

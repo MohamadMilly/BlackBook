@@ -1,14 +1,12 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma.js";
-import { GetUserResponseBody, SignUpRequestBody, User } from "@app/types";
+import { SignUpRequestBody } from "@app/types";
 import {
   ProfileUpdateInput,
-  UserFindManyArgs,
-  UserFindUniqueArgs,
-  UserGetPayload,
-  UserInclude,
+  UserWhereInput,
 } from "../generated/prisma/models.js";
-import { recentStoryWhereOption } from "../shared/queryOptions.js";
+import { userQueries } from "../queries/user.queries.js";
+import { UserDataResult, UsersDataResult } from "../types/user.types.js";
 
 export const createUser = async ({
   username,
@@ -36,144 +34,33 @@ export const createUser = async ({
   return user;
 };
 
-type getUserOptions = {
-  currentUserId?: number;
-  withProfile?: boolean;
-  withRecentStoryId?: boolean;
-  withFollowCounts?: boolean;
-};
-
 export const getUser = async (
-  // pattern 1 : building the query
   userId: number,
-  options: getUserOptions,
-): Promise<Partial<GetUserResponseBody> | void> => {
-  const include = {} as UserInclude;
+  currentUserId: number,
+): Promise<UserDataResult> => {
+  const getUserQuery = userQueries.getUser(userId, currentUserId);
+  const userData = await prisma.user.findUnique(getUserQuery);
 
-  if (options.withProfile) {
-    include.profile = true;
-  }
-  if (options.withRecentStoryId) {
-    include.posts = { where: recentStoryWhereOption };
-  }
-  if (options.currentUserId) {
-    include.followers = {
-      where: {
-        id: options.currentUserId,
-      },
-    };
-    include.receivedFollowRequests = {
-      where: {
-        senderId: options.currentUserId,
-      },
-    };
-  }
-  if (options.withFollowCounts) {
-    include._count = {
-      select: {
-        followers: true,
-        following: true,
-      },
-    };
-  }
-
-  const user = (await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      id: true,
-      firstname: true,
-      lastname: true,
-      username: true,
-      createdAt: true,
-      profile: true,
-      ...(Object.keys(include).length > 0 ? { ...include } : {}),
-    },
-  })) as any;
-  if (!user) return;
-
-  const isFollowed =
-    options.currentUserId &&
-    "followers" in user &&
-    Array.isArray(user.followers)
-      ? user.followers.length === 1
-      : false;
-
-  const pendingFollowRequest =
-    options.currentUserId &&
-    "receivedFollowRequests" in user &&
-    Array.isArray(user.receivedFollowRequests)
-      ? user.receivedFollowRequests[0]
-      : null;
-  const { followers, receivedFollowRequests, posts, _count, ...cleanUser } =
-    user;
-  return {
-    user: cleanUser as Omit<User, "password">,
-    ...(options.currentUserId
-      ? {
-          isFollowed: !!isFollowed,
-          hasPendingFollowRequest: !!pendingFollowRequest,
-          pendingFollowRequest: pendingFollowRequest,
-        }
-      : {}),
-    ...(options.withFollowCounts
-      ? {
-          followersCount: user._count?.followers ?? 0,
-          followingCount: user._count?.following ?? 0,
-        }
-      : {}),
-    ...(options.withRecentStoryId
-      ? {
-          recentStoryId: user.posts?.[0]?.id ?? null,
-        }
-      : {}),
-  };
+  return userData;
 };
 
-export const getUsers = async <T extends UserFindManyArgs>(
+export const getUsers = async (
   query: string | undefined,
   cursor: number | undefined,
   limit: number,
-  options: T,
-): Promise<UserGetPayload<T>[]> => {
-  let queryOptions: UserFindManyArgs;
-  if (query) {
-    const searchTerms = query.trim().split(/\s+/);
-    
-    queryOptions = {
-      where: {
-        AND: searchTerms.map((term) => ({
-          OR: [
-            { firstname: { contains: term, mode: "insensitive" } },
-            { lastname: { contains: term, mode: "insensitive" } },
-          ],
-        })),
-        ...(options.where
-          ? {
-              ...options.where,
-            }
-          : {}),
-      },
-    };
-  } else {
-    queryOptions = {};
-  }
-  const users = await prisma.user.findMany({
-    ...options,
-    ...queryOptions,
-    take: limit,
-    ...(cursor !== undefined
-      ? {
-          skip: 1,
-          cursor: {
-            id: cursor,
-          },
-        }
-      : {}),
-  });
-  
-  return users as UserGetPayload<T>[];
+  currentUserId: number,
+  extraWhere?: UserWhereInput,
+): Promise<UsersDataResult> => {
+  const usersQuery = userQueries.getUsers(
+    query,
+    limit,
+    cursor,
+    currentUserId,
+    extraWhere,
+  );
+  const users = await prisma.user.findMany(usersQuery);
+
+  return users;
 };
 
 export const toggleFollowUser = async (

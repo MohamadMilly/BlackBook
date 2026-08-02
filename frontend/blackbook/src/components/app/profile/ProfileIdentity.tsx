@@ -14,7 +14,6 @@ type ProfileIdentityProps = {
   className: string;
   isLoading: boolean;
   isCurrentUserProfile: boolean;
-  hasPendingFollowRequest: boolean;
   isFollowed: boolean;
   userId: number;
   pendingFollowRequest: FollowRequest | null;
@@ -27,7 +26,6 @@ export function ProfileIdentity({
   className,
   isLoading,
   isCurrentUserProfile,
-  hasPendingFollowRequest,
   pendingFollowRequest,
   isFollowed,
   userId,
@@ -79,7 +77,7 @@ export function ProfileIdentity({
             >
               Unfollow
             </button>
-          ) : hasPendingFollowRequest ? (
+          ) : pendingFollowRequest ? (
             <button
               disabled={isProccessPending}
               onClick={handleCancelRequest}
@@ -95,7 +93,11 @@ export function ProfileIdentity({
               className="flex items-center gap-1 bg-neutral-700/50 w-fit px-2.5 py-1 rounded-full text-xs font-medium tracking-wide text-white cursor-pointer capitalize transition-colors hover:bg-neutral-700"
             >
               <UserRoundPlus size={18} />
-              <span>Send request</span>
+              {isSendingPending ? (
+                <span>Sending...</span>
+              ) : (
+                <span>Send request</span>
+              )}
             </button>
           ))}
       </div>

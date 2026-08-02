@@ -11,6 +11,15 @@ export type User = {
   profile: Profile | null;
 };
 
+export type PublicUser = {
+  id: number;
+  firstname: string;
+  lastname: string;
+  username: string;
+  createdAt: Date;
+  profile?: Profile | null;
+};
+
 export type Profile = {
   id: number;
   avatarUrl: string | null;
@@ -19,7 +28,7 @@ export type Profile = {
 };
 
 export type UserWithFollowCounts = {
-  user: Omit<User, "password">;
+  user: PublicUser;
   followersCount: number;
   followingCount: number;
 };
@@ -30,13 +39,7 @@ export type Comment = {
   id: number;
   userId: number;
   createdAt: Date;
-  user?: Omit<User, "password">;
-};
-
-export type UserFollowDataType = {
-  hasPendingFollowRequest: boolean;
-  pendingFollowRequest?: FollowRequest | null;
-  isFollowed: boolean;
+  user?: PublicUser;
 };
 
 export type PostType = "STORY" | "FEED";
@@ -46,21 +49,24 @@ export type Post = {
   title?: string | null;
   content: string;
   images: string[];
-  user?: Omit<User, "password" | "googleId">;
+  user?: PublicUser;
   userId: number;
   createdAt: Date;
-  likes: Like[];
+  isLiked?: boolean;
   commentsCount?: number;
+  likesCount?: number;
   views: number;
   type: PostType;
 };
+
+export type CreatePostResponseBody = { post: Required<Post> };
 
 export type Like = {
   id: number;
   postId: number;
   userId: number;
   createdAt: Date;
-  user?: Omit<User, "password">;
+  user?: PublicUser;
   post?: Post;
 };
 
@@ -69,8 +75,8 @@ export type FollowRequest = {
   senderId: number;
   receiverId: number;
   createdAt: Date;
-  receiver?: Omit<User, "password">;
-  sender?: Omit<User, "password">;
+  receiver?: PublicUser;
+  sender?: PublicUser;
 };
 
 export type LoginRequestBody = {
@@ -95,7 +101,7 @@ export type SignUpRequestBody = {
 
 export type SignUpResponseBody = {
   message: string;
-  user: Omit<User, "password">;
+  user: PublicUser;
 };
 
 export type UserJwtPayload = {
@@ -110,26 +116,61 @@ export type ResponseError = {
   [key: string]: any;
 };
 
-export interface CreatePostRequestBody
-  extends Pick<Post, "images" | "content" | "title" | "type"> {}
-
+export type CreatePostRequestBody = {
+  title?: string;
+  content: string;
+  images: string[];
+  type: PostType;
+  userId: number;
+};
 export type ToggleLikeResponseBody = {
   operation: "create" | "delete";
   like: Like | null;
 };
 
 export type GetUserResponseBody = {
-  user: Omit<User, "password">;
+  user: PublicUser;
   followingCount: number;
   followersCount: number;
-  recentStoryId: number;
-} & Required<UserFollowDataType>;
+  recentStoryId: number | null | undefined;
+  pendingFollowRequest?: FollowRequest | null | undefined;
+  isFollowed?: boolean;
+};
+
+export type GetUsersResponseBody = {
+  users: GetUserResponseBody[];
+  nextCursor: number | undefined;
+};
+
+export type GetFollowersResponseBody = {
+  followers: GetUserResponseBody[];
+  nextCursor: number | undefined;
+};
+
+export type GetFollowingsResponseBody = {
+  followings: GetUserResponseBody[];
+  nextCursor: number | undefined;
+};
 
 export type CurrentUserData = {
-  user: Omit<User, "password">;
+  user: PublicUser;
   followingCount: number;
   followersCount: number;
   recentStoryId: number;
+};
+
+export type CreateCommentInput = {
+  text: string;
+  postId: number;
+  userId: number;
+};
+
+export type GetPostsResponseBody = {
+  posts: Required<Post>[];
+};
+
+export type GetPostResponseBody = {
+  post: Required<Post>;
 };
 
 export type FollowRequestType = "received" | "sent";

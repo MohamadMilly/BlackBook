@@ -1,37 +1,30 @@
-import {
-  CommentCreateArgs,
-  CommentFindManyArgs,
-  CommentGetPayload,
-} from "../generated/prisma/models.js";
 import { prisma } from "../lib/prisma.js";
+import { commentQueries } from "../queries/comment.queries.js";
+import {
+  CommentDataResult,
+  PostCommentsDataResult,
+} from "../types/comment.types.js";
 
-export const createComment = async <T extends Omit<CommentCreateArgs, "data">>(
-  { text, postId, userId }: { text: string; postId: number; userId: number },
-  options: T,
-): Promise<CommentGetPayload<T>> => {
-  const comment = await prisma.comment.create({
-    ...options,
-    data: {
-      text,
-      postId,
-      userId,
-    },
-  });
-  
-  return comment as CommentGetPayload<T>;
+export const createComment = async ({
+  text,
+  postId,
+  userId,
+}: {
+  text: string;
+  postId: number;
+  userId: number;
+}): Promise<CommentDataResult> => {
+  const options = commentQueries.createComment({ text, postId, userId });
+  const comment = await prisma.comment.create(options);
+
+  return comment;
 };
 
-export const getPostComments = async <T extends CommentFindManyArgs>(
+export const getPostComments = async (
   postId: number,
-  options: T,
-): Promise<CommentGetPayload<T>[]> => {
-  const comments = await prisma.comment.findMany({
-    ...options,
-    where: {
-      postId: postId,
-      ...(options.where ? options.where : {}),
-    },
-  });
+): Promise<PostCommentsDataResult> => {
+  const options = commentQueries.getPostComments(postId);
+  const comments = await prisma.comment.findMany(options);
 
-  return comments as CommentGetPayload<T>[];
+  return comments;
 };

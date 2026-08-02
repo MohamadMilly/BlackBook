@@ -1,47 +1,42 @@
 import { prisma } from "../lib/prisma.js";
-import {
-  PostCreateArgs,
-  PostFindManyArgs,
-  PostFindUniqueArgs,
-  PostGetPayload,
-} from "../generated/prisma/models.js";
 import { CreatePostRequestBody, PostType } from "@app/types";
 import { HttpError } from "../shared/errors/HttpError.js";
+import {
+  CreatedPostDataResult,
+  PostDataResult,
+  PostsDataResult,
+} from "../types/post.types.js";
+import { postQueries } from "../queries/post.queries.js";
 
-export const getPosts = async <T extends PostFindManyArgs>(
-  options: T,
-): Promise<PostGetPayload<T>[]> => {
+export const getPosts = async (
+  currentUserId: number,
+): Promise<PostsDataResult> => {
+  const options = postQueries.getFeedPosts(currentUserId);
   const posts = await prisma.post.findMany(options);
 
-  return posts as PostGetPayload<T>[];
+  return posts as PostsDataResult;
 };
 
-export const getUserPosts = async <T extends PostFindManyArgs>(
+export const getUserPosts = async (
   userId: number,
   type: PostType,
-  options: T,
-): Promise<PostGetPayload<T>[]> => {
-  const posts = await prisma.post.findMany({
-    where: {
-      userId: userId,
-      type: type,
-    },
-    ...options,
-  });
+  currentUserId: number,
+): Promise<PostsDataResult> => {
+  const userPostsQuery = postQueries.getUserPosts(userId, type, currentUserId);
+  const posts = await prisma.post.findMany(userPostsQuery);
 
-  return posts as PostGetPayload<T>[];
+  return posts;
 };
 
-export const createPost = async <T extends Omit<PostCreateArgs, "data">>(
-  { title, images, content, type }: CreatePostRequestBody,
-  userId: number,
-  options: T,
-): Promise<
-  PostGetPayload<T>
-> /* better for typing the result based on options */ => {
+export const createPost = async ({
+  title,
+  images,
+  content,
+  type,
+  userId,
+}: CreatePostRequestBody): Promise<CreatedPostDataResult> => {
   if (type === "STORY") {
     // cannot create two stories at once  (the time diff should be at least one day)
-
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const existingRecentStory = await prisma.post.findFirst({
@@ -60,36 +55,26 @@ export const createPost = async <T extends Omit<PostCreateArgs, "data">>(
       );
     }
   }
-  const post = await prisma.post.create({
-    data: {
-      title,
-      images,
-      content,
-      type,
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
-    },
-    ...options,
+  const createPostQuery = postQueries.createPost({
+    title,
+    images,
+    content,
+    type,
+    userId: userId,
   });
+  const post = await prisma.post.create(createPostQuery);
 
-  return post as PostGetPayload<T>;
+  return post;
 };
 
-export const getPost = async <T extends Omit<PostFindUniqueArgs, "where">>(
+export const getPost = async (
   postId: number,
-  options?: T,
-): Promise<PostGetPayload<T>> => {
-  const post = await prisma.post.findUnique({
-    where: {
-      id: postId,
-    },
-    ...options,
-  });
+  currentUserId: number,
+): Promise<PostDataResult> => {
+  const options = postQueries.getPost(postId, currentUserId);
+  const post = await prisma.post.findUnique(options);
 
-  return post as PostGetPayload<T>;
+  return post;
 };
 
 export const watchPost = async (postId: number): Promise<boolean> => {

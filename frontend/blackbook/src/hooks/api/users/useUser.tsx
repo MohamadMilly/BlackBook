@@ -25,7 +25,6 @@ export function useUser(userId: number) {
   const followersCount = data?.followersCount || 0;
   const followingCount = data?.followingCount || 0;
   const isFollowed = data?.isFollowed || false;
-  const hasPendingFollowRequest = data?.hasPendingFollowRequest || false;
   const pendingFollowRequest = data?.pendingFollowRequest ?? null;
   const recentStoryId = data?.recentStoryId ?? null;
   return {
@@ -35,7 +34,6 @@ export function useUser(userId: number) {
     isLoading,
     error,
     isFollowed,
-    hasPendingFollowRequest,
     pendingFollowRequest,
     recentStoryId,
   };

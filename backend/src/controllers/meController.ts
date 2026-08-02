@@ -3,7 +3,8 @@ import { AuthenticatedRequest } from "../types/index.js";
 import { getUser, patchProfile } from "../services/usersService.js";
 import { CurrentUserData, Post, PostType, Profile, User } from "@app/types";
 import { getUserPosts } from "../services/postsService.js";
-import { getPostsQueryOptions } from "../shared/queryOptions.js";
+import { userPresenters } from "../presenters/user.presenters.js";
+import { postPresenters } from "../presenters/post.presenter.js";
 
 const getCurrentUserGet = async (
   req: AuthenticatedRequest,
@@ -13,20 +14,16 @@ const getCurrentUserGet = async (
   const currentUserId = req.currentUser?.id as number;
 
   try {
-    const userData = (await getUser(currentUserId, {
-      withProfile: true,
-      withRecentStoryId: true,
-      withFollowCounts: true,
-    })) as CurrentUserData;
+    const userData = await getUser(currentUserId, currentUserId);
     if (!userData) {
       res.status(404).json({
         message: "User is not found.",
       });
-    } else {
-      res.json({
-        ...userData,
-      });
+      return;
     }
+    const formattedCurrentUser = userPresenters.presentUser(userData);
+
+    res.json(formattedCurrentUser);
   } catch (err) {
     next(err);
   }
@@ -39,19 +36,16 @@ export const getCurrentUserPosts = async (
   res: Response<{ posts: Required<Post[]> }>,
   next: NextFunction,
 ) => {
-  const currentUser = req.currentUser;
+  const currentUserId = req.currentUser?.id as number;
   const { type } = req.query;
   try {
     const posts = await getUserPosts(
-      currentUser?.id as number,
+      currentUserId,
       type ?? "FEED",
-      getPostsQueryOptions,
+      currentUserId,
     );
-    const postsWithCommentsCounts = posts.map(({ _count, ...post }) => ({
-      ...post,
-      commentsCount: _count.comments,
-    }));
-    res.json({ posts: postsWithCommentsCounts });
+    const formattedPosts = postPresenters.presentPostsList(posts);
+    res.json({ posts: formattedPosts });
   } catch (err) {
     next(err);
   }

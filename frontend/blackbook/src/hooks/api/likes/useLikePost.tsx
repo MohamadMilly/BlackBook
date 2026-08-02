@@ -15,7 +15,7 @@ const toggleLike = async ({
 
 export function useLikePost() {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+
   return useMutation({
     mutationKey: ["ToggleLikePost"],
     mutationFn: toggleLike,
@@ -30,40 +30,34 @@ export function useLikePost() {
       });
 
       queryClient.setQueriesData({ queryKey: rootQueryKey }, (old: any) => {
-        if (!old?.posts) return old;
-
-        const optimisticLike: Like = {
-          id: Date.now(),
-          createdAt: new Date(),
-          userId: user?.id as number,
-          postId: postId,
-        };
-
-        return {
-          ...old,
-          posts: old.posts.map((post: Required<Post>) => {
-            if (post.id === postId) {
-              const existingLike = post.likes.some(
-                (like: Like) => like.userId === user?.id,
-              );
-
-              if (existingLike) {
+        if (!old) return old;
+        if ("posts" in old) {
+          return {
+            ...old,
+            posts: old.posts.map((post: Required<Post>) => {
+              if (post.id === postId) {
                 return {
                   ...post,
-                  likes: post.likes.filter(
-                    (like: Like) => like.userId !== user?.id,
-                  ),
+                  likesCount: post.isLiked
+                    ? post.likesCount - 1
+                    : post.likesCount + 1,
+                  isLiked: !post.isLiked,
                 };
               } else {
-                return {
-                  ...post,
-                  likes: [...post.likes, optimisticLike],
-                };
+                return post;
               }
-            }
-            return post;
-          }),
-        };
+            }),
+          };
+        }
+        if ("post" in old) {
+          return {
+            ...old,
+            likesCount: old.post.isLiked
+              ? old.post.likesCount - 1
+              : old.post.likesCount + 1,
+            isLiked: !old.post.isLiked,
+          };
+        }
       });
 
       return { previousQueriesState };

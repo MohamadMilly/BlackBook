@@ -12,7 +12,6 @@ import { RequestsList } from "../../components/app/users/requests/RequestsList";
 import { useFollowRequestsCount } from "../../hooks/api/users/useFollowRequestsCount";
 import { RequestsSectionControls } from "../../components/app/users/requests/RequestsSectionControls";
 
-
 export function UsersPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("query");
@@ -113,7 +112,7 @@ export function UsersPage() {
         </div>
       </form>
       <div className="mt-6">
-        <UsersList isLoading={isLoading} error={error} users={users} />
+        <UsersList isLoading={isLoading} error={error} items={users} />
         {hasNextPage && (
           <VisibilityTrigger
             onVisible={fetchNextPage}

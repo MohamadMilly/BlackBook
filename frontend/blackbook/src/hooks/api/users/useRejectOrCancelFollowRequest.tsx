@@ -66,11 +66,10 @@ export function useRejectOrCancelFollowRequest() {
       });
 
       if (type === "sent") {
-        // reread this !
         updateUserFollowStatus({
           queryClient,
           userId: receiverId,
-          data: { hasPendingFollowRequest: false, pendingFollowRequest: null },
+          data: { pendingFollowRequest: null },
         });
       }
 

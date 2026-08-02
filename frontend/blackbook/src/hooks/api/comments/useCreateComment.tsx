@@ -35,20 +35,30 @@ export function useCreateComment() {
       );
       queryClient.setQueriesData(
         { queryKey: ["posts"] },
-        (old: { posts: Post[] }) => {
-          if (!old?.posts) return old;
-
-          return {
-            ...old,
-            posts: old.posts.map((post) => {
-              if (post.id === args.postId) {
-                return {
-                  ...post,
-                  commentsCount: (post?.commentsCount ?? 0) + 1,
-                };
-              } else return post;
-            }),
-          };
+        (old: { posts: Required<Post>[] } | { post: Required<Post> }) => {
+          if (!old) return old;
+          if ("posts" in old) {
+            return {
+              ...old,
+              posts: old.posts.map((post) => {
+                if (post.id === args.postId) {
+                  return {
+                    ...post,
+                    commentsCount: (post?.commentsCount ?? 0) + 1,
+                  };
+                } else return post;
+              }),
+            };
+          }
+          if ("post" in old) {
+            return {
+              ...old,
+              post: {
+                ...old.post,
+                commentsCount: (old.post?.commentsCount ?? 0) + 1,
+              },
+            };
+          }
         },
       );
     },

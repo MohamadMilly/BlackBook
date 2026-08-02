@@ -11,7 +11,7 @@ export const toggleLike = async (
       postId: postId,
     },
   };
-
+  
   try {
     await prisma.like.delete({
       where: filter,
