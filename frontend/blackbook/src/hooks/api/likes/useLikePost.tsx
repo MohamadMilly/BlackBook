@@ -60,10 +60,13 @@ export function useLikePost() {
         if ("post" in old) {
           return {
             ...old,
-            likesCount: old.post.isLiked
-              ? old.post.likesCount - 1
-              : old.post.likesCount + 1,
-            isLiked: !old.post.isLiked,
+            post: {
+              ...old.post,
+              likesCount: old.post.isLiked
+                ? old.post.likesCount - 1
+                : old.post.likesCount + 1,
+              isLiked: !old.post.isLiked,
+            },
           };
         }
       });
