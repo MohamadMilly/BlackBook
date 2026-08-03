@@ -8,7 +8,7 @@ import {
 export const userSharedIncludes = (currentUserId: number) => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-
+  
   return {
     _count: {
       select: {
@@ -32,6 +32,7 @@ export const userSharedIncludes = (currentUserId: number) => {
         createdAt: {
           gt: yesterday,
         },
+        type: "STORY",
       },
     },
   } satisfies UserInclude;
