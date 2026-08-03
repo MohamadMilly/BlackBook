@@ -1,7 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { FollowRequest, ResponseError } from "@app/types";
 import { apiClient } from "../../../api/api";
-import type { FollowRequest } from "@app/types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
+import { useNotifications } from "../../../contexts/NotificationsContext";
 import { useAuth } from "../../../contexts/authContext";
+import { getErrorMessage } from "../../../shared/utils/getErrorMessage";
 
 export const acceptRequest = async (
   requestId: number,
@@ -15,7 +18,16 @@ export function useAcceptFollowRequest() {
   const queryKey = ["follow_requests", "received"];
   const queryCountKey = ["follow_requests", "count", "received"];
   const { user } = useAuth();
-  return useMutation({
+  const { add } = useNotifications();
+  return useMutation<
+    { hasAccepted: boolean },
+    AxiosError<{ errors: ResponseError[] } | ResponseError>,
+    number,
+    {
+      previousRequestsState?: { requests: FollowRequest[] };
+      previousRequestsCountState?: { count: number };
+    }
+  >({
     mutationKey: ["accept_follow_request"],
     mutationFn: acceptRequest,
 
@@ -25,9 +37,9 @@ export function useAcceptFollowRequest() {
         queryClient.cancelQueries({ queryKey: queryCountKey }),
       ]);
 
-      const previousRequestsState = queryClient.getQueryData(queryKey);
+      const previousRequestsState = queryClient.getQueryData<{ requests: FollowRequest[] }>(queryKey);
       const previousRequestsCountState =
-        queryClient.getQueryData(queryCountKey);
+        queryClient.getQueryData<{ count: number }>(queryCountKey);
       queryClient.setQueryData(
         queryKey,
         (old: { requests: FollowRequest[] }) => {
@@ -52,12 +64,23 @@ export function useAcceptFollowRequest() {
 
       return { previousRequestsCountState, previousRequestsState };
     },
-    onError: (err, requestId, context) => {
+    onError: (error, _requestId, context) => {
       queryClient.setQueryData(queryKey, context?.previousRequestsState);
       queryClient.setQueryData(
         queryCountKey,
         context?.previousRequestsCountState,
       );
+      add(
+        getErrorMessage(
+          error as AxiosError<
+            { errors: ResponseError[] } | ResponseError
+          > | null,
+        ),
+        "ERROR",
+      );
+    },
+    onSuccess: () => {
+      add("Follow request accepted successfully.", "SUCCESS");
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: queryKey });

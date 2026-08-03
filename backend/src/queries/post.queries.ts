@@ -84,7 +84,7 @@ export const postQueries = {
     } satisfies PostFindManyArgs;
   },
 
-  createPost(data: CreatePostRequestBody) {
+  createPost(data: PostCreateInput) {
     return {
       data: data,
       include: { user: { include: { profile: true } } },

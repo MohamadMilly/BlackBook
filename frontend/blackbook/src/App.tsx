@@ -8,6 +8,7 @@ import { CommentsPanelContent } from "./components/app/feed/comments/CommentsPan
 import { PostImagesContext } from "./contexts/PostImagesContext";
 import { PostImagesPreviewLayer } from "./components/app/feed/posts/PostImagesPreviewLayer";
 import { Story } from "./components/app/story/Story";
+import { ToastNotificationsList } from "./components/shared/ui/ToastNotificationList";
 
 function App() {
   const { user } = useAuth();
@@ -54,6 +55,7 @@ function App() {
         </InlinePanel>
         <PostImagesPreviewLayer images={previewImagesUrls} />
         <Story storyId={currentStoryId} durationSecs={20} />
+        <ToastNotificationsList />
       </div>
     </PostImagesContext>
   );

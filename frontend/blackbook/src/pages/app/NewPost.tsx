@@ -6,7 +6,6 @@ import { Button } from "../../components/shared/ui/Button";
 import type { CreatePostRequestBody, ResponseError } from "@app/types";
 import { useCreatePost } from "../../hooks/api/posts/useCreatePost";
 import { useMarkFieldsInValid } from "../../hooks/utils/useMarkFieldsInvalid";
-import { useNavigate } from "react-router";
 import { getServerAndValidationErrors } from "../../shared/utils/getServerAndValidationError";
 import { ErrorsList } from "../../components/form/ErrorsList";
 import { useUpload, type uploadDataType } from "../../hooks/utils/useUpload";
@@ -22,7 +21,7 @@ export function NewPostPage() {
     images: [],
     type: "FEED",
   });
-  const navigate = useNavigate();
+
   const {
     mutate: createPost,
     isPending: isCreatingPostPending,
@@ -30,7 +29,7 @@ export function NewPostPage() {
   } = useCreatePost();
 
   const { isUploading, upload } = useUpload();
-
+  
   const errors: ResponseError[] = useMemo(
     () => getServerAndValidationErrors(postCreationError),
     [postCreationError],
@@ -59,7 +58,7 @@ export function NewPostPage() {
       images: [...prev.images, ...urls],
     }));
   };
-
+  
   const handleDeleteImage = (imageUrl: string): void => {
     if (postData.images.includes(imageUrl)) {
       const nextImages = postData.images.filter((image) => image !== imageUrl);

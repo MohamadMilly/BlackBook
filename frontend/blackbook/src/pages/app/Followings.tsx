@@ -20,7 +20,6 @@ export function FollowingsPage() {
     isLoading,
     isFetchingNextPage,
     fetchNextPage,
-    isFetchNextPageError,
     hasNextPage,
     error,
   } = useUserFollowings(finalUserId, query);
@@ -47,7 +46,7 @@ export function FollowingsPage() {
 
   return (
     <SectionWrapper title="Followings">
-      <form method="GET">
+      <form className="sticky top-0 bg-black py-2 mt-4 z-100" method="GET">
         <div>
           <label
             className="font-medium tracking-wide mb-1 block"

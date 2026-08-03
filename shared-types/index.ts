@@ -121,7 +121,6 @@ export type CreatePostRequestBody = {
   content: string;
   images: string[];
   type: PostType;
-  userId: number;
 };
 export type ToggleLikeResponseBody = {
   operation: "create" | "delete";

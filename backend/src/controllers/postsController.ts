@@ -39,12 +39,11 @@ export const create = async (
   const currentUserId = req.currentUser?.id as number;
   const { title, content, images, type } = matchedData(req);
   try {
-    const post = await createPost({
+    const post = await createPost(currentUserId, {
       title,
       content,
       images,
       type,
-      userId: currentUserId,
     });
     const initialPostType: Required<Post> = {
       ...post,

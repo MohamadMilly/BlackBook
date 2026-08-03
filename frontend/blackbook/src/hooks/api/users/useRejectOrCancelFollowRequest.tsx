@@ -1,7 +1,14 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type {
+  FollowRequest,
+  FollowRequestType,
+  ResponseError,
+} from "@app/types";
 import { apiClient } from "../../../api/api";
-import type { FollowRequest, FollowRequestType } from "@app/types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
+import { useNotifications } from "../../../contexts/NotificationsContext";
 import { updateUserFollowStatus } from "../../../shared/utils/mutationHandlers";
+import { getErrorMessage } from "../../../shared/utils/getErrorMessage";
 
 const rejectOrCancelFollowRequest = async ({
   requestId,
@@ -15,7 +22,21 @@ const rejectOrCancelFollowRequest = async ({
 
 export function useRejectOrCancelFollowRequest() {
   const queryClient = useQueryClient();
-  return useMutation({
+  const { add } = useNotifications();
+  return useMutation<
+    { hasRemoved: boolean },
+    AxiosError<{ errors: ResponseError[] } | ResponseError>,
+    {
+      type: FollowRequestType;
+      requestId: number;
+      receiverId: number;
+    },
+    {
+      previousRequestsCountState?: { count: number };
+      previousRequestsState?: { requests: FollowRequest[] };
+      previousUsersQueriesData?: Array<[readonly unknown[], unknown]>;
+    }
+  >({
     mutationKey: ["rejectOrCancel_follow_request"],
     mutationFn: rejectOrCancelFollowRequest,
 
@@ -39,9 +60,12 @@ export function useRejectOrCancelFollowRequest() {
       const previousUsersQueriesData = queryClient.getQueriesData({
         queryKey: usersRootQueryKey,
       });
-      const previousRequestsState = queryClient.getQueryData(queryKey);
-      const previousRequestsCountState =
-        queryClient.getQueryData(queryCountKey);
+      const previousRequestsState = queryClient.getQueryData<{
+        requests: FollowRequest[];
+      }>(queryKey);
+      const previousRequestsCountState = queryClient.getQueryData<{
+        count: number;
+      }>(queryCountKey);
 
       queryClient.setQueryData(
         queryKey,
@@ -79,7 +103,7 @@ export function useRejectOrCancelFollowRequest() {
         previousUsersQueriesData,
       };
     },
-    onError: (err, { type }, context) => {
+    onError: (error, { type }, context) => {
       queryClient.setQueryData(
         ["follow_requests", type],
         context?.previousRequestsState,
@@ -93,8 +117,24 @@ export function useRejectOrCancelFollowRequest() {
           queryClient.setQueryData(queryKey, oldData);
         });
       }
+      add(
+        getErrorMessage(
+          error as AxiosError<
+            { errors: ResponseError[] } | ResponseError
+          > | null,
+        ),
+        "ERROR",
+      );
     },
-    onSettled: (data, err, { type }, context) => {
+    onSuccess: (_data, { type }) => {
+      add(
+        type === "sent"
+          ? "Follow request canceled successfully."
+          : "Follow request rejected successfully.",
+        "SUCCESS",
+      );
+    },
+    onSettled: (_data, _error, { type }) => {
       queryClient.invalidateQueries({ queryKey: ["follow_requests", type] });
       queryClient.invalidateQueries({
         queryKey: ["follow_requests", "count", type],

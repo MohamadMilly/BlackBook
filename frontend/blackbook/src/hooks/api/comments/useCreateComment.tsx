@@ -1,6 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
 import { apiClient } from "../../../api/api";
-import type { Comment, Post } from "@app/types";
+import { useNotifications } from "../../../contexts/NotificationsContext";
+import { getErrorMessage } from "../../../shared/utils/getErrorMessage";
+import type { Comment, Post, ResponseError } from "@app/types";
 
 const createComment = async ({
   postId,
@@ -18,7 +21,12 @@ const createComment = async ({
 
 export function useCreateComment() {
   const queryClient = useQueryClient();
-  return useMutation({
+  const { add } = useNotifications();
+  return useMutation<
+    { comment: Comment },
+    AxiosError<{ errors: ResponseError[] } | ResponseError>,
+    { postId: number; text: string }
+  >({
     mutationKey: ["createComment"],
     mutationFn: createComment,
     onSuccess: (data, args) => {
@@ -60,6 +68,17 @@ export function useCreateComment() {
             };
           }
         },
+      );
+      add("Comment posted successfully.", "SUCCESS");
+    },
+    onError: (error) => {
+      add(
+        getErrorMessage(
+          error as AxiosError<
+            { errors: ResponseError[] } | ResponseError
+          > | null,
+        ),
+        "ERROR",
       );
     },
   });

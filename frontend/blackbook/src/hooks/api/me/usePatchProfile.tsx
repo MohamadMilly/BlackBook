@@ -1,13 +1,10 @@
-import type {
-  Profile,
-  UserWithFollowCounts,
-} from "@app/types";
+import type { Profile, ResponseError, UserWithFollowCounts } from "@app/types";
 import { apiClient } from "../../../api/api";
-import {
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import type { AxiosError } from "axios";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNotifications } from "../../../contexts/NotificationsContext";
 import { useAuth } from "../../../contexts/authContext";
+import { getErrorMessage } from "../../../shared/utils/getErrorMessage";
 
 const patchProfile = async ({
   bio,
@@ -30,7 +27,12 @@ const patchProfile = async ({
 export function usePatchProfile() {
   const { user: currentUser } = useAuth();
   const queryClient = useQueryClient();
-  return useMutation({
+  const { add } = useNotifications();
+  return useMutation<
+    { profile: Profile },
+    AxiosError<{ errors: ResponseError[] } | ResponseError>,
+    { bio?: string; avatarUrl?: string; bannerUrl?: string }
+  >({
     mutationKey: ["patchProfile"],
     mutationFn: patchProfile,
 
@@ -44,6 +46,17 @@ export function usePatchProfile() {
             user: { ...old.user, profile: data.profile },
           };
         },
+      );
+      add("Profile updated successfully.", "SUCCESS");
+    },
+    onError: (error) => {
+      add(
+        getErrorMessage(
+          error as AxiosError<
+            { errors: ResponseError[] } | ResponseError
+          > | null,
+        ),
+        "ERROR",
       );
     },
     onSettled: () => {

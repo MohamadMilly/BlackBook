@@ -28,13 +28,10 @@ export const getUserPosts = async (
   return posts;
 };
 
-export const createPost = async ({
-  title,
-  images,
-  content,
-  type,
-  userId,
-}: CreatePostRequestBody): Promise<CreatedPostDataResult> => {
+export const createPost = async (
+  userId: number,
+  { title, images, content, type }: CreatePostRequestBody,
+): Promise<CreatedPostDataResult> => {
   if (type === "STORY") {
     // cannot create two stories at once  (the time diff should be at least one day)
     const yesterday = new Date();
@@ -60,7 +57,7 @@ export const createPost = async ({
     images,
     content,
     type,
-    userId: userId,
+    user: { connect: { id: userId } },
   });
   const post = await prisma.post.create(createPostQuery);
 

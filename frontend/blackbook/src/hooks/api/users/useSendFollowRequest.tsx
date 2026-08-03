@@ -1,7 +1,10 @@
-import type { FollowRequest } from "@app/types";
+import type { FollowRequest, ResponseError } from "@app/types";
 import { apiClient } from "../../../api/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
+import { useNotifications } from "../../../contexts/NotificationsContext";
 import { updateUserFollowStatus } from "../../../shared/utils/mutationHandlers";
+import { getErrorMessage } from "../../../shared/utils/getErrorMessage";
 
 const sendFollowRequest = async ({
   receiverId,
@@ -17,8 +20,13 @@ const sendFollowRequest = async ({
 
 export function useSendFollowRequest() {
   const queryClient = useQueryClient();
+  const { add } = useNotifications();
 
-  return useMutation({
+  return useMutation<
+    { request: FollowRequest },
+    AxiosError<{ errors: ResponseError[] } | ResponseError>,
+    { receiverId: number }
+  >({
     mutationKey: ["send_follow_request"],
     mutationFn: sendFollowRequest,
 
@@ -49,6 +57,15 @@ export function useSendFollowRequest() {
         userId: args.receiverId,
         data: { pendingFollowRequest: data.request },
       });
+      add("Follow request sent successfully.", "SUCCESS");
+    },
+    onError: (error) => {
+      add(
+        getErrorMessage(
+          error as AxiosError<{ errors: ResponseError[] } | ResponseError> | null,
+        ),
+        "ERROR",
+      );
     },
   });
 }

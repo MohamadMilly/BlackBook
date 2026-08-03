@@ -7,7 +7,6 @@ export function FeedPage() {
   return (
     <SectionWrapper title="Feed">
       <PostsList isLoading={isLoading} error={error} posts={posts} />
-    
     </SectionWrapper>
   );
 }

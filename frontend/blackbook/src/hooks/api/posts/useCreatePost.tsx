@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import { useAuth } from "../../../contexts/authContext";
 import { useNavigate } from "react-router";
+import { useNotifications } from "../../../contexts/NotificationsContext";
 
 const createPost = async ({
   title,
@@ -23,6 +24,7 @@ const createPost = async ({
 export function useCreatePost() {
   const queryClient = useQueryClient();
   const { user: currentUser } = useAuth();
+  const { add } = useNotifications();
   const navigate = useNavigate();
   return useMutation<
     { post: Required<Post> },
@@ -58,6 +60,7 @@ export function useCreatePost() {
           recentStoryId: data.post.id,
         };
       });
+      add("Post created successfully", "SUCCESS");
       if (data.post.type === "FEED") {
         navigate("/app/feed");
       } else {

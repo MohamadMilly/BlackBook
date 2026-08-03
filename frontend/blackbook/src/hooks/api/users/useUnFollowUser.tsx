@@ -4,11 +4,14 @@ import {
   type InfiniteData,
 } from "@tanstack/react-query";
 import { apiClient } from "../../../api/api";
+import type { AxiosError } from "axios";
 import { updateUserFollowStatus } from "../../../shared/utils/mutationHandlers";
 import { useAuth } from "../../../contexts/authContext";
-import type { UserWithFollowCounts } from "@app/types";
+import { useNotifications } from "../../../contexts/NotificationsContext";
+import type { ResponseError, UserWithFollowCounts } from "@app/types";
 import type { FollowersPage } from "./useUserFollowers";
 import type { FollowingsPage } from "./useUserFollowings";
+import { getErrorMessage } from "../../../shared/utils/getErrorMessage";
 
 const unFollowUser = async (
   userId: number,
@@ -21,7 +24,13 @@ const unFollowUser = async (
 export function useUnFollowUser() {
   const queryClient = useQueryClient();
   const { user: currentUser } = useAuth();
-  return useMutation({
+  const { add } = useNotifications();
+  return useMutation<
+    { hasUnFollowed: boolean },
+    AxiosError<{ errors: ResponseError[] } | ResponseError>,
+    number,
+    { previousUserQueriesData?: Array<[readonly unknown[], unknown]> }
+  >({
     mutationKey: ["unFollowUser"],
     mutationFn: unFollowUser,
 
@@ -99,14 +108,25 @@ export function useUnFollowUser() {
 
       return { previousUserQueriesData };
     },
-    onError: (err, userId, context) => {
+    onError: (error, _userId, context) => {
       if (context?.previousUserQueriesData) {
         context.previousUserQueriesData.forEach(([queryKey, oldData]) => {
           queryClient.setQueryData(queryKey, oldData);
         });
       }
+      add(
+        getErrorMessage(
+          error as AxiosError<
+            { errors: ResponseError[] } | ResponseError
+          > | null,
+        ),
+        "ERROR",
+      );
     },
-    onSettled: (data, err, userId) => {
+    onSuccess: () => {
+      add("User unfollowed successfully.", "SUCCESS");
+    },
+    onSettled: (_data, _error, userId) => {
       queryClient.invalidateQueries({ queryKey: ["users", currentUser?.id] });
       queryClient.invalidateQueries({
         queryKey: ["users", "followers", userId],

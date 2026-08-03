@@ -6,6 +6,7 @@ import { routes } from "./routes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./providers/AuthProvider";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { NotificationsProvider } from "./providers/NotificationsProvider";
 
 const router = createBrowserRouter(routes);
 
@@ -19,7 +20,9 @@ createRoot(document.getElementById("root")!).render(
           clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
           locale="en"
         >
-          <RouterProvider router={router} />
+          <NotificationsProvider>
+            <RouterProvider router={router} />
+          </NotificationsProvider>
         </GoogleOAuthProvider>
       </AuthProvider>
     </QueryClientProvider>

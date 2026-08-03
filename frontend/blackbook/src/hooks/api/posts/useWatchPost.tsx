@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
 import { apiClient } from "../../../api/api";
-import type { Post } from "@app/types";
+import type { Post, ResponseError } from "@app/types";
 
 const watchPost = async ({
   postId,
@@ -14,11 +15,15 @@ const watchPost = async ({
 
 export function useWatchPost() {
   const queryClient = useQueryClient();
-  return useMutation({
+
+  return useMutation<
+    { hasBeenWatched: boolean },
+    AxiosError<{ errors: ResponseError[] } | ResponseError>,
+    { postId: number }
+  >({
     mutationKey: ["watchPost"],
     mutationFn: watchPost,
-    
-    onSuccess: (data, args) => {
+    onSuccess: (_data, args) => {
       queryClient.setQueriesData(
         { queryKey: ["posts"] },
         (old: { posts: Required<Post>[] }) => {
