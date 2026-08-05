@@ -53,13 +53,16 @@ export function useCreatePost() {
           };
         },
       );
-      queryClient.setQueryData(["users", currentUser?.id], (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          recentStoryId: data.post.id,
-        };
-      });
+      if (data.post.type === "STORY") {
+        queryClient.setQueryData(["users", currentUser?.id], (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            recentStoryId: data.post.id,
+          };
+        });
+      }
+
       add("Post created successfully", "SUCCESS");
       if (data.post.type === "FEED") {
         navigate("/app/feed");
